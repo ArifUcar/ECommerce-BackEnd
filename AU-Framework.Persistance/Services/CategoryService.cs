@@ -1,4 +1,6 @@
 ﻿using AU_Framework.Application.Features.CategoryFeatures.Command.CreateCategory;
+using AU_Framework.Application.Features.CategoryFeatures.Command.DeleteCategory;
+using AU_Framework.Application.Features.CategoryFeatures.Command.UpdateCategory;
 using AU_Framework.Application.Features.CategoryFeatures.Queries;
 using AU_Framework.Application.Repository;
 using AU_Framework.Application.Services;
@@ -48,6 +50,46 @@ namespace AU_Framework.Persistance.Services
             // IsDeleted=false olan aktif kategorileri getir
             var activeCategories = await _categoryRepository.FindAsync(x => !x.IsDeleted, cancellationToken);
             return activeCategories.ToList();
+        }
+
+        public async Task UpdateAsync(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        {
+            Category category = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (category == null)
+                throw new Exception("Kategori bulunamadı!");
+
+            category.CategoryName = request.CategoryName;
+            await _categoryRepository.UpdateAsync(category, cancellationToken);
+        }
+
+        public async Task DeleteAsync(DeleteCategoryCommand request, CancellationToken cancellationToken)
+        {
+            try 
+            {
+                Category? category = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
+                if (category == null)
+                    throw new Exception("Kategori bulunamadı!");
+
+                category.IsDeleted = true;
+                await _categoryRepository.UpdateAsync(category, cancellationToken);
+            }
+            catch (Exception ex) when (ex.Message == "Geçersiz ID formatı!")
+            {
+                throw new Exception("Geçersiz kategori ID'si formatı!");
+            }
+            catch (Exception)
+            {
+                throw new Exception("Kategori silme işlemi sırasında bir hata oluştu!");
+            }
+        }
+
+        public async Task<Category> GetByIdAsync(string id, CancellationToken cancellationToken)
+        {
+            Category? category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
+            if (category == null || category.IsDeleted)
+                throw new Exception("Kategori bulunamadı!");
+            
+            return category;
         }
     }
 }

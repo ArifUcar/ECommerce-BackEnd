@@ -5,6 +5,8 @@ using AU_Framework.Domain.Entities;
 using AU_Framework.Presentation.Abstract;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using AU_Framework.Application.Features.CategoryFeatures.Command.UpdateCategory;
+using AU_Framework.Application.Features.CategoryFeatures.Command.DeleteCategory;
 
 namespace AU_Framework.Presentation.Controllers
 {
@@ -32,6 +34,29 @@ namespace AU_Framework.Presentation.Controllers
         {
             GetAllCategoryQuery query = new();  // Yeni bir query instance'ı oluşturuyoruz
             IList<Category> response = await _mediator.Send(query, cancellationToken);
+            return Ok(response);
+        }
+
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
+        {
+            GetCategoryByIdQuery query = new(id);
+            Category response = await _mediator.Send(query, cancellationToken);
+            return Ok(response);
+        }
+
+        [HttpPut("[action]")]
+        public async Task<IActionResult> UpdateCategory(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        {
+            MessageResponse response = await _mediator.Send(request, cancellationToken);
+            return Ok(response);
+        }
+
+        [HttpDelete("[action]/{id}")]
+        public async Task<IActionResult> DeleteCategory(string id, CancellationToken cancellationToken)
+        {
+            DeleteCategoryCommand request = new(id);
+            MessageResponse response = await _mediator.Send(request, cancellationToken);
             return Ok(response);
         }
     }

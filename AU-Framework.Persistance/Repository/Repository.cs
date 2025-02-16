@@ -7,10 +7,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Threading;
+using AU_Framework.Domain.Abstract;
 
 namespace AU_Framework.Persistance.Repository
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : BaseEntity
     {
         protected readonly AppDbContext _context;
         private readonly DbSet<T> _dbSet;
@@ -23,7 +24,13 @@ namespace AU_Framework.Persistance.Repository
 
         public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+            Guid guidId;
+            if (!Guid.TryParse(id, out guidId))
+            {
+                throw new Exception("Geçersiz ID formatı!");
+            }
+
+            return await _dbSet.FindAsync(new object[] { guidId }, cancellationToken);
         }
 
         public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)

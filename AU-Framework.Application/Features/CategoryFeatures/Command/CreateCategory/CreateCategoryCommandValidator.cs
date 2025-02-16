@@ -6,12 +6,12 @@ public sealed class CreateCategoryCommandValidator : AbstractValidator<CreateCat
 {
     public CreateCategoryCommandValidator()
     {
-        RuleFor(p => p.CategoryName)
-            .NotEmpty().WithMessage("Kategori adı boş olamaz");
-        RuleFor(p => p.CategoryName)
-           .MinimumLength(3).WithMessage("Kategori adı en az 3 karakterli olmalıdır");
-        RuleFor(p => p.CategoryName)
-    .Matches("^[a-zA-Z0-9]*$").WithMessage("Kategori adı yalnızca harf ve rakam içerebilir");
-
+        RuleFor(x => x.CategoryName)
+            .NotEmpty()
+            .WithMessage("Kategori adı boş olamaz!")
+            .MinimumLength(3)
+            .WithMessage("Kategori adı en az 3 karakter olmalıdır!")
+            .MaximumLength(50)
+            .WithMessage("Kategori adı en fazla 50 karakter olabilir!");
     }
 }

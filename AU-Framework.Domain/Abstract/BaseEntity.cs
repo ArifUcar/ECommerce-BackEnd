@@ -6,14 +6,18 @@ namespace AU_Framework.Domain.Abstract;
  /// </summary>
 public abstract class BaseEntity
 {
-    protected BaseEntity()
+    public Guid Id { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public bool IsDeleted { get; set; }
+
+    public BaseEntity()
     {
         Id = Guid.NewGuid();
+        CreatedDate = DateTime.Now;
+        IsDeleted = false;
     }
 
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedDate { get; set; }
-    public bool IsDeleted { get; set; } = false;
+    public DateTime? DeleteDate { get; set; }
 }
 

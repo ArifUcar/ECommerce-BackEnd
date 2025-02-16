@@ -24,6 +24,6 @@ public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategor
         await _categoryService.CreateAsync(request, cancellationToken);
 
         // İşlem başarılı bir şekilde tamamlandıktan sonra geri dönüş mesajı döndürülür.
-        return new("Kategori başarıyla eklendi");
+        return new MessageResponse("Kategori başarıyla oluşturuldu.");
     }
 }
