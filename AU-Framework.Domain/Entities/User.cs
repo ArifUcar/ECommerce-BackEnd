@@ -23,6 +23,7 @@ public sealed class User : BaseEntity
     public DateTime LastLoginDate { get; set; }
 
     public ICollection<Order> Orders { get; set; }
+    public ICollection<Role> Roles { get; set; }
 
     private static string HashPassword(string password)
     {

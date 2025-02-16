@@ -69,4 +69,20 @@ public sealed class AuthController : ApiController
         
         return Ok(new { Message = "Authorized", UserId = userId, Email = userEmail });
     }
+
+    [HttpPost("[action]")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AssignRole(string userId, string roleName)
+    {
+        // Role atama işlemi
+        return Ok();
+    }
+
+    [HttpGet("[action]")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> GetUsers()
+    {
+        // Kullanıcı listesi
+        return Ok();
+    }
 } 

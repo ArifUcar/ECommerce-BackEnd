@@ -16,20 +16,23 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// HTTP Context ve Log servisi ekle
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ILogService, LogService>();
+
+// Diğer servisler
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 // Repository servisini kaydediyoruz
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddScoped<AppDbContext>();
 
-
-
 builder.Services.AddTransient<ExceptionMiddleware>();
 builder.Services.AddAutoMapper(typeof(AU_Framework.Persistance.AssemblyReferance).Assembly);
-
 
 string connectingString = builder.Configuration.GetConnectionString("SqlServer");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectingString));
@@ -127,6 +130,21 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy =>
+        policy.RequireRole("Admin"));
+        
+    options.AddPolicy("RequireManagerRole", policy =>
+        policy.RequireRole("Manager"));
+        
+    options.AddPolicy("RequireUserRole", policy =>
+        policy.RequireRole("User"));
+});
+
+// Middleware'leri kaydet
+builder.Services.AddTransient<RequestLoggingMiddleware>();
+
 var app = builder.Build();
 
 
@@ -145,6 +163,9 @@ app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Request loglama middleware'ini ekle
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.MapControllers();
 

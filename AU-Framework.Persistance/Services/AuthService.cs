@@ -13,13 +13,16 @@ public sealed class AuthService : IAuthService
 {
     private readonly IRepository<User> _userRepository;
     private readonly IConfiguration _configuration;
+    private readonly ILogService _logger;
 
     public AuthService(
         IRepository<User> userRepository,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogService logger)
     {
         _userRepository = userRepository;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<(string Token, string RefreshToken)> LoginAsync(
@@ -27,22 +30,38 @@ public sealed class AuthService : IAuthService
         string password,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetFirstAsync(x => x.Email == email, cancellationToken);
-        
-        if (user is null)
-            throw new Exception("Kullanıcı bulunamadı!");
+        try
+        {
+            _logger.LogInfo($"Login attempt for email: {email}");
+            
+            var user = await _userRepository.GetFirstAsync(x => x.Email == email, cancellationToken);
+            if (user is null)
+            {
+                _logger.LogWarning($"Login failed: User not found for email: {email}");
+                throw new Exception("Kullanıcı bulunamadı!");
+            }
 
-        if (!user.VerifyPassword(password))
-            throw new Exception("Şifre yanlış!");
+            if (!user.VerifyPassword(password))
+            {
+                _logger.LogWarning($"Login failed: Invalid password for email: {email}");
+                throw new Exception("Şifre yanlış!");
+            }
 
-        if (!user.IsActive)
-            throw new Exception("Kullanıcı hesabı aktif değil!");
+            if (!user.IsActive)
+                throw new Exception("Kullanıcı hesabı aktif değil!");
 
-        string token = GenerateJwtToken(user);
-        user.GenerateRefreshToken();
-        await _userRepository.UpdateAsync(user, cancellationToken);
+            string token = GenerateJwtToken(user);
+            user.GenerateRefreshToken();
+            await _userRepository.UpdateAsync(user, cancellationToken);
 
-        return (token, user.RefreshToken!);
+            _logger.LogInfo($"Login successful for user: {user.Email}");
+            return (token, user.RefreshToken!);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Login failed for email: {email}");
+            throw;
+        }
     }
 
     public async Task<bool> RegisterAsync(
@@ -175,23 +194,25 @@ public sealed class AuthService : IAuthService
 
     private string GenerateJwtToken(User user)
     {
-        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!);
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Name, user.GetFullName()),
-            new(ClaimTypes.Role, "User"),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString())
+            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
         };
 
+        // Kullanıcının rollerini ekle
+        foreach (var role in user.Roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role.Name));
+        }
+
+        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!);
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
-            notBefore: DateTime.UtcNow,
             signingCredentials: new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256)

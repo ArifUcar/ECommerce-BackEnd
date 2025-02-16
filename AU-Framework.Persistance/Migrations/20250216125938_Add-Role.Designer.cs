@@ -4,6 +4,7 @@ using AU_Framework.Persistance.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AU_Framework.Persistance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250216125938_Add-Role")]
+    partial class AddRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,66 +46,6 @@ namespace AU_Framework.Persistance.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Category");
-                });
-
-            modelBuilder.Entity("AU_Framework.Domain.Entities.Log", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Exception")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
-
-                    b.Property<long?>("ExecutionTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Level")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MethodName")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("RequestBody")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
-
-                    b.Property<string>("RequestMethod")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("RequestPath")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("AU_Framework.Domain.Entities.Order", b =>
@@ -268,24 +211,24 @@ namespace AU_Framework.Persistance.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b4c47440-7dd3-411a-abea-1ed5df0475c1"),
-                            CreatedDate = new DateTime(2025, 2, 16, 13, 13, 25, 774, DateTimeKind.Utc).AddTicks(1030),
+                            Id = new Guid("efa4d2d3-070b-4223-a7e9-b17bc1a18729"),
+                            CreatedDate = new DateTime(2025, 2, 16, 12, 59, 38, 256, DateTimeKind.Utc).AddTicks(2693),
                             Description = "Sistem Yöneticisi",
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("afd1e7fe-6d44-4b81-860e-71faa79556e9"),
-                            CreatedDate = new DateTime(2025, 2, 16, 13, 13, 25, 774, DateTimeKind.Utc).AddTicks(1038),
+                            Id = new Guid("f539c0f4-0602-45bc-ba77-2771adb15515"),
+                            CreatedDate = new DateTime(2025, 2, 16, 12, 59, 38, 256, DateTimeKind.Utc).AddTicks(2699),
                             Description = "Yönetici",
                             IsDeleted = false,
                             Name = "Manager"
                         },
                         new
                         {
-                            Id = new Guid("ae47251e-29f1-471f-9125-48f2c60503a3"),
-                            CreatedDate = new DateTime(2025, 2, 16, 13, 13, 25, 774, DateTimeKind.Utc).AddTicks(1054),
+                            Id = new Guid("d766e679-dad5-4342-be96-0d252c7665a8"),
+                            CreatedDate = new DateTime(2025, 2, 16, 12, 59, 38, 256, DateTimeKind.Utc).AddTicks(2710),
                             Description = "Kullanıcı",
                             IsDeleted = false,
                             Name = "User"
