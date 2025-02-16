@@ -15,6 +15,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using System.Security.Claims;
+using AU_Framework.WebAPI.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
