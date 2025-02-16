@@ -8,13 +8,20 @@ using AU_Framework.Presentation.Abstract;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace AU_Framework.Presentation.Controllers;
 
+[ApiController]
+[Route("api/[controller]")]
 public sealed class AuthController : ApiController
 {
-    public AuthController(IMediator mediator) : base(mediator) { }
+    private readonly ILogger<AuthController> _logger;
+
+    public AuthController(IMediator mediator, ILogger<AuthController> logger) : base(mediator)
+    {
+        _logger = logger;
+    }
 
     [HttpPost("[action]")]
     public async Task<IActionResult> Register(RegisterCommand request, CancellationToken cancellationToken)
@@ -26,8 +33,34 @@ public sealed class AuthController : ApiController
     [HttpPost("[action]")]
     public async Task<IActionResult> Login(LoginCommand request, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(request, cancellationToken);
-        return Ok(response);
+        try
+        {
+            var response = await _mediator.Send(request, cancellationToken);
+            
+            // Token'ı response header'ına ekle
+            Response.Headers.Add("Authorization", $"Bearer {response.Token}");
+            
+            _logger.LogInformation($"Successful login for user: {response.Email}");
+            
+            return Ok(new
+            {
+                token = response.Token,
+                refreshToken = response.RefreshToken,
+                user = new
+                {
+                    email = response.Email,
+                    firstName = response.FirstName,
+                    lastName = response.LastName,
+                    userId = response.UserId,
+                    roles = response.Roles
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Login failed for user: {request.Email}");
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPost("[action]")]
@@ -58,31 +91,5 @@ public sealed class AuthController : ApiController
     {
         var response = await _mediator.Send(request, cancellationToken);
         return Ok(response);
-    }
-
-    [HttpGet("[action]")]
-    [Authorize]
-    public IActionResult TestAuth()
-    {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-        
-        return Ok(new { Message = "Authorized", UserId = userId, Email = userEmail });
-    }
-
-    [HttpPost("[action]")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> AssignRole(string userId, string roleName)
-    {
-        // Role atama işlemi
-        return Ok();
-    }
-
-    [HttpGet("[action]")]
-    [Authorize(Roles = "Admin,Manager")]
-    public async Task<IActionResult> GetUsers()
-    {
-        // Kullanıcı listesi
-        return Ok();
     }
 } 

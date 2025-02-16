@@ -1,12 +1,14 @@
 using AU_Framework.Application.Repository;
 using AU_Framework.Application.Services;
 using AU_Framework.Domain.Entities;
+using AU_Framework.Application.Features.AuthFeatures.Commands.Login;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using AU_Framework.Application.Features.AuthFeatures.Commands;
 
 namespace AU_Framework.Persistance.Services;
 
@@ -80,51 +82,62 @@ public sealed class AuthService : IAuthService
         }
     }
 
-    public async Task<(string Token, string RefreshToken)> LoginAsync(
-        string email,
-        string password,
-        CancellationToken cancellationToken)
+    public async Task<LoginCommandResponse> LoginAsync(LoginCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            await _logger.LogInfo($"Login attempt for email: {email}");
+            await _logger.LogInfo($"Login attempt for email: {request.Email}");
             
             var user = await _userRepository.GetFirstWithIncludeAsync(
-                x => x.Email == email,
+                x => x.Email == request.Email,
                 query => query.Include(u => u.Roles),
                 cancellationToken);
 
             if (user is null)
             {
-                await _logger.LogWarning($"Login failed: User not found for email: {email}");
+                await _logger.LogWarning($"Login failed: User not found for email: {request.Email}");
                 throw new Exception("Kullanıcı bulunamadı!");
             }
 
-            if (!_passwordService.VerifyPassword(password, user.Password))
+            if (!_passwordService.VerifyPassword(request.Password, user.Password))
             {
-                await _logger.LogWarning($"Login failed: Invalid password for email: {email}");
+                await _logger.LogWarning($"Login failed: Invalid password for email: {request.Email}");
                 throw new Exception("Şifre yanlış!");
             }
 
             if (!user.IsActive)
                 throw new Exception("Kullanıcı hesabı aktif değil!");
 
-            if (user.Roles == null || !user.Roles.Any())
+            var roles = user.Roles?.Select(r => r.Name).ToList() ?? new List<string>();
+            if (!roles.Any())
             {
-                await _logger.LogWarning($"User has no roles: {email}");
+                await _logger.LogWarning($"User has no roles: {request.Email}");
                 throw new Exception("Kullanıcı rolü bulunamadı!");
             }
 
-            string token = GenerateToken(user, user.Roles.Select(r => r.Name).ToList());
-            user.GenerateRefreshToken();
+            string token = GenerateToken(user, roles);
+            string refreshToken = GenerateRefreshToken();
+            
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpires = DateTime.UtcNow.AddDays(7);
+            user.LastLoginDate = DateTime.UtcNow;
+            
             await _userRepository.UpdateAsync(user, cancellationToken);
-
             await _logger.LogInfo($"Login successful for user: {user.Email}");
-            return (token, user.RefreshToken!);
+
+            return new LoginCommandResponse(
+                Token: token,
+                RefreshToken: refreshToken,
+                Email: user.Email,
+                FirstName: user.FirstName,
+                LastName: user.LastName,
+                UserId: user.Id.ToString(),
+                Roles: roles
+            );
         }
         catch (Exception ex)
         {
-            await _logger.LogError(ex, $"Login failed for email: {email}");
+            await _logger.LogError(ex, $"Login failed for email: {request.Email}");
             throw;
         }
     }
@@ -257,26 +270,31 @@ public sealed class AuthService : IAuthService
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+            new(ClaimTypes.Role, string.Join(",", roles))
         };
 
-        // Rolleri ekle
         foreach (var role in roles)
         {
             claims.Add(new(ClaimTypes.Role, role));
         }
 
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
-        
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
+            signingCredentials: credentials
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(Guid.NewGuid().ToByteArray());
     }
 }

@@ -3,16 +3,21 @@ using AU_Framework.Presentation.Abstract;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace AU_Framework.Presentation.Controllers;
 
-public sealed class RoleController : ApiController
+[ApiController]
+[Route("api/[controller]")]
+public class RoleController : ControllerBase
 {
     private readonly IRoleService _roleService;
+    private readonly ILogger<RoleController> _logger;
 
-    public RoleController(IMediator mediator, IRoleService roleService) : base(mediator)
+    public RoleController(IRoleService roleService, ILogger<RoleController> logger)
     {
         _roleService = roleService;
+        _logger = logger;
     }
 
     [HttpPost("[action]")]
@@ -48,10 +53,18 @@ public sealed class RoleController : ApiController
     }
 
     [HttpGet("[action]")]
-    [Authorize(Roles = "Admin,Manager,User")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
     {
-        var roles = await _roleService.GetAllRolesAsync(cancellationToken);
-        return Ok(roles);
+        try
+        {
+            var roles = await _roleService.GetAllRolesAsync(cancellationToken);
+            return Ok(roles);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Roller listelenirken hata oluştu");
+            return BadRequest(new { message = ex.Message });
+        }
     }
 } 

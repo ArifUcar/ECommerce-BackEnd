@@ -1,10 +1,9 @@
 using AU_Framework.Application.Services;
-using AU_Framework.Domain.Dtos;
 using MediatR;
 
 namespace AU_Framework.Application.Features.AuthFeatures.Commands.Login;
 
-public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
+public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, LoginCommandResponse>
 {
     private readonly IAuthService _authService;
 
@@ -13,13 +12,9 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, LoginRes
         _authService = authService;
     }
 
-    public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<LoginCommandResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var (token, refreshToken) = await _authService.LoginAsync(
-            request.Email,
-            request.Password,
-            cancellationToken);
-
-        return new LoginResponse(token, refreshToken);
+        var response = await _authService.LoginAsync(request, cancellationToken);
+        return response;
     }
 } 
