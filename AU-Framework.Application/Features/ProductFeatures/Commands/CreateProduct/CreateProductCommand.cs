@@ -1,7 +1,7 @@
-﻿using AU_Framework.Domain.Dtos;
+using AU_Framework.Domain.Dtos;
 using MediatR;
 
-namespace AU_Framework.Application.Features.ProductFeatures.CreateProduct;
+namespace AU_Framework.Application.Features.ProductFeatures.Commands.CreateProduct;
 
 public sealed record CreateProductCommand(
     string ProductName,
@@ -9,4 +9,4 @@ public sealed record CreateProductCommand(
     decimal Price,
     int StockQuantity,
     Guid CategoryId
-):IRequest<MessageResponse>;
+) : IRequest<MessageResponse>; 

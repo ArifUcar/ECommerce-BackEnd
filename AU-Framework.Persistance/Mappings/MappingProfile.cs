@@ -1,5 +1,6 @@
-﻿using AU_Framework.Application.Features.CategoryFeatures.Command.CreateCategory;
-using AU_Framework.Application.Features.ProductFeatures.CreateProduct;
+﻿using AU_Framework.Application.Features.ProductFeatures.Commands.CreateProduct;
+using AU_Framework.Application.Features.ProductFeatures.Commands.UpdateProduct;
+using AU_Framework.Application.Features.CategoryFeatures.Command.CreateCategory;
 using AU_Framework.Domain.Entities;
 using AutoMapper;
 
@@ -11,9 +12,15 @@ public sealed class MappingProfile : Profile
     {
         // CreateProductCommand'dan Product'a dönüşüm yapılacak.
         // ReverseMap() ile ters dönüşüm de sağlanacak.
-        CreateMap<CreateProductCommand, Product>().ReverseMap();
-        CreateMap<CreateCategoryCommand, Category>().ReverseMap();
+        CreateMap<CreateProductCommand, Product>()
+            .ForMember(dest => dest.CategoryId, 
+                      opt => opt.MapFrom(src => src.CategoryId));
 
+        CreateMap<UpdateProductCommand, Product>()
+            .ForMember(dest => dest.CategoryId, 
+                      opt => opt.MapFrom(src => src.CategoryId));
+
+        CreateMap<CreateCategoryCommand, Category>().ReverseMap();
     }
 }
 
