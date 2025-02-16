@@ -1,4 +1,4 @@
-using AU_Framework.Application.Features.CategoryFeatures.CreateCategory;
+using AU_Framework.Application.Features.CategoryFeatures.Command.CreateCategory;
 using AU_Framework.Domain.Dtos;
 using AU_Framework.Presentation.Controllers;
 using MediatR;

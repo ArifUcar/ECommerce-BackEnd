@@ -1,8 +1,10 @@
-﻿using AU_Framework.Application.Features.CategoryFeatures.CreateCategory; 
-using AU_Framework.Domain.Dtos;  
-using AU_Framework.Presentation.Abstract;  
-using MediatR;  
-using Microsoft.AspNetCore.Mvc;  
+﻿using AU_Framework.Application.Features.CategoryFeatures.Command.CreateCategory;
+using AU_Framework.Application.Features.CategoryFeatures.Queries;
+using AU_Framework.Domain.Dtos;
+using AU_Framework.Domain.Entities;
+using AU_Framework.Presentation.Abstract;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AU_Framework.Presentation.Controllers
 {
@@ -24,13 +26,13 @@ namespace AU_Framework.Presentation.Controllers
             
             return Ok(response);
         }
-        [HttpGet]
-        public IActionResult Calculate()
+
+        [HttpGet("[action]")]  // POST yerine GET kullanıyoruz
+        public async Task<IActionResult> GetAllCategory(CancellationToken cancellationToken)  // query parametresini kaldırdık
         {
-            int x = 0;
-            int y = 0;
-            int result = x / y;
-            return Ok();
+            GetAllCategoryQuery query = new();  // Yeni bir query instance'ı oluşturuyoruz
+            IList<Category> response = await _mediator.Send(query, cancellationToken);
+            return Ok(response);
         }
     }
 }

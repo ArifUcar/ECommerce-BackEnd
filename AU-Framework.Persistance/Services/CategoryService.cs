@@ -1,8 +1,13 @@
-﻿using AU_Framework.Application.Features.CategoryFeatures.CreateCategory;
+﻿using AU_Framework.Application.Features.CategoryFeatures.Command.CreateCategory;
+using AU_Framework.Application.Features.CategoryFeatures.Queries;
+using AU_Framework.Application.Repository;
 using AU_Framework.Application.Services;
 using AU_Framework.Domain.Entities;
-using AU_Framework.Persistance.Context;
 using AutoMapper;
+using MediatR;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AU_Framework.Persistance.Services
 {
@@ -11,17 +16,17 @@ namespace AU_Framework.Persistance.Services
     public sealed class CategoryService : ICategoryService
     {
         // Uygulamanın veritabanına erişimi sağlayan DbContext
-        private readonly AppDbContext _context;
+        private readonly IRepository<Category> _categoryRepository;
 
         // AutoMapper kullanarak veri nesneleri arasında dönüşüm işlemi yapmamızı sağlayan IMapper
         private readonly IMapper _mapper;
 
         // Yapıcı metod, bağımlılık enjeksiyonu ile AppDbContext ve IMapper alınır.
         // Bu metod, veritabanı işlemleri ve veri dönüşümleri için gerekli bağımlılıkları sağlar.
-        public CategoryService(AppDbContext context, IMapper mapper)
+        public CategoryService(IRepository<Category> categoryRepository, IMapper mapper)
         {
-            _context = context;  // AppDbContext nesnesi, veritabanına erişim sağlar.
-            _mapper = mapper;    // IMapper nesnesi, veri dönüşümü için kullanılır.
+            _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
         // Kategori oluşturma işlemi için asenkron bir metod.
@@ -35,12 +40,14 @@ namespace AU_Framework.Persistance.Services
             // Yeni kategori, veritabanına eklenmek üzere ekleniyor.
             // _context.Set<Category>() ile veritabanındaki Category tablosuna erişilir.
             // AddAsync, yeni kategori nesnesini asenkron şekilde veritabanına ekler.
-            await _context.Set<Category>().AddAsync(category, cancellationToken);
+            await _categoryRepository.AddAsync(category, cancellationToken);
+        }
 
-            // Veritabanına yapılan değişiklikler kaydedilir.
-            // SaveChangesAsync, tüm yapılan değişiklikleri veritabanına kalıcı olarak işler.
-            // cancellationToken ile işlem iptal edilebilir.
-            await _context.SaveChangesAsync(cancellationToken);
+        public async Task<IList<Category>> GetAllAsync(GetAllCategoryQuery request, CancellationToken cancellationToken)
+        {
+            // IsDeleted=false olan aktif kategorileri getir
+            var activeCategories = await _categoryRepository.FindAsync(x => !x.IsDeleted, cancellationToken);
+            return activeCategories.ToList();
         }
     }
 }

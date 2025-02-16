@@ -23,6 +23,7 @@ namespace AU_Framework.Persistance.Configurations
             builder.Property(c => c.CategoryName)
                 .IsRequired()      // Bu alanın boş geçilemez olduğunu belirler.
                 .HasMaxLength(100); // Bu alanda en fazla 100 karakter saklanabileceğini belirtir.
+            builder.HasIndex(p => p.CategoryName);
         }
     }
 }

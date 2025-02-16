@@ -1,4 +1,5 @@
 ﻿using AU_Framework.Application.Features.ProductFeatures.CreateProduct;
+using AU_Framework.Application.Repository;
 using AU_Framework.Application.Services;
 using AU_Framework.Domain.Entities;
 using AU_Framework.Persistance.Context;
@@ -9,12 +10,12 @@ namespace AU_Framework.Persistance.Services;
 
 public sealed class ProductService : IProductService
 {
-    private readonly AppDbContext _context;
+    private readonly IRepository<Product> _productRepository;
     private readonly IMapper _mapper;
 
-    public ProductService(AppDbContext context, IMapper mapper)
+    public ProductService(IRepository<Product> productRepository, IMapper mapper)
     {
-        _context = context;
+        _productRepository = productRepository;
         _mapper = mapper;
     }
 
@@ -23,9 +24,7 @@ public sealed class ProductService : IProductService
 
         Product product = _mapper.Map<Product>(request);
 
-   
-        await _context.Set<Product>().AddAsync(product,cancellationToken);
+        await _productRepository.AddAsync(product, cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
     }
 }

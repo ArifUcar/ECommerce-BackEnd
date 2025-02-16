@@ -1,4 +1,4 @@
-﻿using AU_Framework.Application.Features.CategoryFeatures.CreateCategory;
+﻿using AU_Framework.Application.Features.CategoryFeatures.Command.CreateCategory;
 using AU_Framework.Application.Features.ProductFeatures.CreateProduct;
 using AU_Framework.Domain.Entities;
 using AutoMapper;

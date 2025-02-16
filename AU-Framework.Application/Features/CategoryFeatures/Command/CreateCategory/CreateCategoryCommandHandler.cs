@@ -2,7 +2,7 @@
 using AU_Framework.Domain.Dtos;
 using MediatR;
 
-namespace AU_Framework.Application.Features.CategoryFeatures.CreateCategory;
+namespace AU_Framework.Application.Features.CategoryFeatures.Command.CreateCategory;
 
 public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, MessageResponse>
 {
