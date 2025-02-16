@@ -1,3 +1,4 @@
+#nullable enable
 using AU_Framework.Domain.Abstract;
 
 namespace AU_Framework.Domain.Entities;

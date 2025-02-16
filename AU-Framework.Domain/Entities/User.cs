@@ -9,12 +9,7 @@ public sealed class User : BaseEntity
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Email { get; set; }
-    private string _password;
-    public string Password 
-    { 
-        get => _password;
-        set => _password = HashPassword(value);
-    }
+    public string Password { get; set; }
     public string Phone { get; set; }
     public string Address { get; set; }
     public string? RefreshToken { get; set; }
@@ -24,23 +19,6 @@ public sealed class User : BaseEntity
 
     public ICollection<Order> Orders { get; set; }
     public ICollection<Role> Roles { get; set; }
-
-    private static string HashPassword(string password)
-    {
-        using var sha256 = SHA256.Create();
-        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return Convert.ToBase64String(hashedBytes);
-    }
-
-    public bool VerifyPassword(string password)
-    {
-        return HashPassword(password) == _password;
-    }
-
-    public string GetFullName()
-    {
-        return $"{FirstName} {LastName}";
-    }
 
     public void GenerateRefreshToken()
     {
@@ -53,5 +31,10 @@ public sealed class User : BaseEntity
         return RefreshToken != null && 
                RefreshTokenExpires.HasValue && 
                RefreshTokenExpires.Value > DateTime.Now;
+    }
+
+    public string GetFullName()
+    {
+        return $"{FirstName} {LastName}";
     }
 }

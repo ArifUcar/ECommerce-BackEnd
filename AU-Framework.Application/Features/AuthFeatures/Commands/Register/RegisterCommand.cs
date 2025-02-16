@@ -1,6 +1,6 @@
+#nullable enable
 using AU_Framework.Domain.Dtos;
 using MediatR;
-using System.Collections.Generic;
 
 namespace AU_Framework.Application.Features.AuthFeatures.Commands.Register;
 

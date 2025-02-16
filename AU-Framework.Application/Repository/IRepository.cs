@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
+#nullable enable
 using System.Linq.Expressions;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Linq;
 
 namespace AU_Framework.Application.Repository
 {

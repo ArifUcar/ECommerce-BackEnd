@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using FluentValidation.Results;
 using MediatR;
 
 namespace AU_Framework.Application.Behaviors
@@ -16,26 +15,25 @@ namespace AU_Framework.Application.Behaviors
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            // Eğer doğrulayıcı yoksa, doğrudan bir sonraki aşamaya geç
             if (!_validators.Any())
             {
                 return await next();
             }
 
-            // Doğrulama işlemi için bir context oluştur
             var context = new ValidationContext<TRequest>(request);
 
-            // Tüm doğrulayıcıları çalıştır ve hataları topla
-            var validationFailures = _validators
-                .Select(validator => validator.Validate(context))
-                .SelectMany(validationResult => validationResult.Errors)
-                .Where(error => error != null)
+            var validationResults = await Task.WhenAll(
+                _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+
+            var failures = validationResults
+                .SelectMany(r => r.Errors)
+                .Where(f => f != null)
                 .ToList();
 
-            // Eğer doğrulama hatası varsa, hata fırlat
-            if (validationFailures.Any())
+            if (failures.Any())
             {
-                throw new ValidationException(validationFailures);
+                var errorMessages = string.Join("\n", failures.Select(x => x.ErrorMessage));
+                throw new ValidationException(errorMessages);
             }
 
             return await next();

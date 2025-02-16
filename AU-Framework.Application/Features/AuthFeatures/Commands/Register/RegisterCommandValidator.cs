@@ -1,11 +1,16 @@
 using FluentValidation;
+using AU_Framework.Application.Services;
 
 namespace AU_Framework.Application.Features.AuthFeatures.Commands.Register;
 
 public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
-    public RegisterCommandValidator()
+    private readonly IPasswordService _passwordService;
+
+    public RegisterCommandValidator(IPasswordService passwordService)
     {
+        _passwordService = passwordService;
+
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("Ad boş olamaz")
             .MaximumLength(100).WithMessage("Ad 100 karakterden uzun olamaz");
@@ -21,8 +26,20 @@ public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Şifre boş olamaz")
-            .MinimumLength(6).WithMessage("Şifre en az 6 karakter olmalıdır")
-            .MaximumLength(20).WithMessage("Şifre 20 karakterden uzun olamaz");
+            .Must(password =>
+            {
+                if (string.IsNullOrEmpty(password)) return false;
+                var result = _passwordService.ValidatePassword(password);
+                return result.IsValid;
+            })
+            .WithMessage(command =>
+            {
+                if (string.IsNullOrEmpty(command.Password)) 
+                    return "Şifre boş olamaz";
+                
+                var result = _passwordService.ValidatePassword(command.Password);
+                return string.Join(", ", result.Errors);
+            });
 
         RuleFor(x => x.Phone)
             .MaximumLength(20).WithMessage("Telefon numarası 20 karakterden uzun olamaz");

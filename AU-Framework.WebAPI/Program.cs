@@ -25,6 +25,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 // Repository servisini kaydediyoruz
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
