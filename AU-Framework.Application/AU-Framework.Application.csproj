@@ -16,4 +16,8 @@
     <ProjectReference Include="..\AU-Framework.Domain\AU-Framework.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\AuthFeatures\Queries\" />
+  </ItemGroup>
+
 </Project>

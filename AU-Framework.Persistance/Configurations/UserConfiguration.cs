@@ -26,13 +26,36 @@ namespace AU_Framework.Persistance.Configurations
 
             builder.Property(u => u.Password)
                 .IsRequired()
-                .HasMaxLength(255);
+                .HasMaxLength(255)
+                .HasField("_password");
 
             builder.Property(u => u.Phone)
                 .HasMaxLength(20);
 
             builder.Property(u => u.Address)
                 .HasMaxLength(300);
+
+            builder.Property(u => u.RefreshToken)
+                .HasMaxLength(512)
+                .IsRequired(false);
+
+            builder.Property(u => u.RefreshTokenExpires)
+                .IsRequired(false);
+
+            builder.Property(u => u.IsActive)
+                .IsRequired()
+                .HasDefaultValue(true);
+
+            builder.Property(u => u.LastLoginDate)
+                .IsRequired()
+                .HasDefaultValue(DateTime.UtcNow);
+
+            builder.HasIndex(u => u.Email)
+                .IsUnique();
+
+            builder.HasIndex(u => u.Phone)
+                .IsUnique()
+                .HasFilter("[Phone] IS NOT NULL");
         }
     }
 }

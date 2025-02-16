@@ -4,7 +4,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>AU_Framework.Inftrastructure</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JWT" Version="8.6.0" />
+  </ItemGroup>
 
 </Project>

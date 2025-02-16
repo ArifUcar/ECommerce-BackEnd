@@ -3,39 +3,34 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Linq;
 
 namespace AU_Framework.Application.Repository
 {
     public interface IRepository<T> where T : class
     {
-        // Tekil kayıt getirme
-        Task<T> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+        // Tekil kayıt getirme işlemleri
+        Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
+        Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<T?> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
 
-        // Tüm kayıtları getirme
-        Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
+        // Çoklu kayıt getirme işlemleri
+        Task<IQueryable<T>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<IQueryable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
 
-        // Şarta göre kayıtları getirme
-        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
-
-        // Tekil kayıt ekleme
-        Task AddAsync(T entity, CancellationToken cancellationToken = default);
-
-        // Çoklu kayıt ekleme
+        // Ekleme işlemleri
+        Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
         Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
-        // Kayıt güncelleme
-        Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
+        // Güncelleme işlemi
+        Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
 
-        // Tekil kayıt silme
-        Task RemoveAsync(T entity, CancellationToken cancellationToken = default);
-
-        // Çoklu kayıt silme
+        // Silme işlemleri
+        Task<T> DeleteAsync(T entity, CancellationToken cancellationToken = default);
         Task RemoveRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
-        // Şarta göre tek kayıt getirme
-        Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
-
-        // Kayıt var mı kontrolü
+        // Yardımcı metodlar
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

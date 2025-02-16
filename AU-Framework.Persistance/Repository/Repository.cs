@@ -21,59 +21,72 @@ namespace AU_Framework.Persistance.Repository
             _dbSet = context.Set<TEntity>();
         }
 
-        public async Task<TEntity> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<TEntity?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<TEntity?> GetFirstAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.ToListAsync(cancellationToken);
+            return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
-        public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<TEntity?> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
+            return await _dbSet.SingleOrDefaultAsync(predicate, cancellationToken);
         }
 
-        public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public Task<IQueryable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            await _dbSet.AddAsync(entity, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
+            return Task.FromResult(_dbSet.AsQueryable());
+        }
+
+        public Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(_dbSet.Where(predicate));
+        }
+
+        public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+        {
+            var entry = await _dbSet.AddAsync(entity, cancellationToken);
+            await SaveChangesAsync(cancellationToken);
+            return entry.Entity;
         }
 
         public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
         {
             await _dbSet.AddRangeAsync(entities, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
+            await SaveChangesAsync(cancellationToken);
         }
 
-        public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync(cancellationToken);
+            var entry = _dbSet.Update(entity);
+            await SaveChangesAsync(cancellationToken);
+            return entry.Entity;
         }
 
-        public async Task RemoveAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public async Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync(cancellationToken);
+            var entry = _dbSet.Remove(entity);
+            await SaveChangesAsync(cancellationToken);
+            return entry.Entity;
         }
 
         public async Task RemoveRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
         {
             _dbSet.RemoveRange(entities);
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
-        {
-            return await _dbSet.SingleOrDefaultAsync(predicate, cancellationToken);
+            await SaveChangesAsync(cancellationToken);
         }
 
         public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await _dbSet.AnyAsync(predicate, cancellationToken);
+        }
+
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }
