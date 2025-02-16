@@ -1,0 +1,6 @@
+@AU_Framework.WebAPI_HostAddress = http://localhost:5226
+
+GET {{AU_Framework.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
