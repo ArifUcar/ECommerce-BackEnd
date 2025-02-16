@@ -4,19 +4,11 @@ namespace AU_Framework.Application.Services;
 
 public interface IAuthService
 {
-    Task<(string Token, string RefreshToken)> LoginAsync(
-        string email, 
-        string password, 
-        CancellationToken cancellationToken);
-
-    Task<bool> RegisterAsync(
-        User user, 
-        string password, 
-        CancellationToken cancellationToken);
-
-    Task<(string Token, string RefreshToken)> RefreshTokenAsync(
-        string refreshToken, 
-        CancellationToken cancellationToken);
+    Task<bool> RegisterAsync(User user, string password, List<string> roleNames, CancellationToken cancellationToken);
+    Task<(string Token, string RefreshToken)> LoginAsync(string email, string password, CancellationToken cancellationToken);
+    Task<bool> ValidateTokenAsync(string token);
+    Task<(string Token, string RefreshToken)> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken);
+    Task<bool> RevokeTokenAsync(string userId, CancellationToken cancellationToken);
 
     Task<bool> ChangePasswordAsync(
         string userId, 
@@ -32,13 +24,5 @@ public interface IAuthService
 
     Task<bool> ForgotPasswordAsync(
         string email, 
-        CancellationToken cancellationToken);
-
-    Task<bool> ValidateTokenAsync(
-        string token, 
-        CancellationToken cancellationToken);
-
-    Task<bool> RevokeTokenAsync(
-        string userId, 
         CancellationToken cancellationToken);
 } 

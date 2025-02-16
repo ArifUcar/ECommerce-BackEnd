@@ -12,10 +12,20 @@ namespace AU_Framework.Application.Repository
         // Tekil kayıt getirme işlemleri
         Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
         Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<T?> GetFirstWithIncludeAsync(
+            Expression<Func<T, bool>> predicate,
+            Func<IQueryable<T>, IQueryable<T>> include,
+            CancellationToken cancellationToken = default);
         Task<T?> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
 
         // Çoklu kayıt getirme işlemleri
         Task<IQueryable<T>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<IQueryable<T>> GetAllWithIncludeAsync(
+            Func<IQueryable<T>, IQueryable<T>> include,
+            CancellationToken cancellationToken = default);
+        Task<IQueryable<T>> GetAllWithPredicateAsync(
+            Expression<Func<T, bool>> predicate,
+            CancellationToken cancellationToken = default);
         Task<IQueryable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
 
         // Ekleme işlemleri

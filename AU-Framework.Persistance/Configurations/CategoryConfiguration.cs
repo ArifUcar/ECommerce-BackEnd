@@ -6,7 +6,7 @@ namespace AU_Framework.Persistance.Configurations
 {
     // IEntityTypeConfiguration<Category> arayüzünü implement eder.
     // Bu sınıf, Category entity'sinin veritabanı yapılandırmasını tanımlar.
-    public class CategoryConfiguration : IEntityTypeConfiguration<Category>
+    public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         // Configure metodunda, Category entity'si için veritabanı konfigürasyonlarını ayarlıyoruz.
         public void Configure(EntityTypeBuilder<Category> builder)
@@ -15,14 +15,17 @@ namespace AU_Framework.Persistance.Configurations
             builder.ToTable("Categories");
 
             // Category entity'si için birincil anahtar (Primary Key) olarak "Id" alanını ayarlıyoruz.
-            builder.HasKey(c => c.Id);
+            builder.HasKey(x => x.Id);
 
             // CategoryName özelliği için veritabanı ayarlarını yapıyoruz.
             // Bu alanın zorunlu (Required) olmasını sağlıyoruz ve 
             // azami uzunluğunu 100 karakter olarak belirliyoruz.
-            builder.Property(c => c.CategoryName)
+            builder.Property(x => x.CategoryName)
                 .IsRequired()      // Bu alanın boş geçilemez olduğunu belirler.
                 .HasMaxLength(100); // Bu alanda en fazla 100 karakter saklanabileceğini belirtir.
+
+       
+
             builder.HasIndex(p => p.CategoryName);
         }
     }

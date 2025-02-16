@@ -29,7 +29,9 @@ namespace AU_Framework.Persistance.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CategoryName")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -42,7 +44,9 @@ namespace AU_Framework.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category");
+                    b.HasIndex("CategoryName");
+
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("AU_Framework.Domain.Entities.Log", b =>
@@ -55,8 +59,8 @@ namespace AU_Framework.Persistance.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Exception")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasMaxLength(8000)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("ExecutionTime")
                         .HasColumnType("bigint");
@@ -71,7 +75,8 @@ namespace AU_Framework.Persistance.Migrations
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("MethodName")
                         .HasMaxLength(255)
@@ -101,6 +106,12 @@ namespace AU_Framework.Persistance.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedDate");
+
+                    b.HasIndex("Level");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Logs", (string)null);
                 });
@@ -138,7 +149,7 @@ namespace AU_Framework.Persistance.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Order");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("AU_Framework.Domain.Entities.OrderDetail", b =>
@@ -212,20 +223,29 @@ namespace AU_Framework.Persistance.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CategoryId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ProductName")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
@@ -237,7 +257,9 @@ namespace AU_Framework.Persistance.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Product");
+                    b.HasIndex("CategoryId1");
+
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("AU_Framework.Domain.Entities.Role", b =>
@@ -250,42 +272,45 @@ namespace AU_Framework.Persistance.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Role");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b4c47440-7dd3-411a-abea-1ed5df0475c1"),
-                            CreatedDate = new DateTime(2025, 2, 16, 13, 13, 25, 774, DateTimeKind.Utc).AddTicks(1030),
+                            Id = new Guid("b30e8254-3389-431b-b2a7-112551e17b60"),
+                            CreatedDate = new DateTime(2025, 2, 16, 15, 1, 38, 143, DateTimeKind.Utc).AddTicks(5024),
                             Description = "Sistem Yöneticisi",
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("afd1e7fe-6d44-4b81-860e-71faa79556e9"),
-                            CreatedDate = new DateTime(2025, 2, 16, 13, 13, 25, 774, DateTimeKind.Utc).AddTicks(1038),
+                            Id = new Guid("24b89c4c-7fce-4e8d-b0a1-e6e1a01a8b26"),
+                            CreatedDate = new DateTime(2025, 2, 16, 15, 1, 38, 143, DateTimeKind.Utc).AddTicks(5028),
                             Description = "Yönetici",
                             IsDeleted = false,
                             Name = "Manager"
                         },
                         new
                         {
-                            Id = new Guid("ae47251e-29f1-471f-9125-48f2c60503a3"),
-                            CreatedDate = new DateTime(2025, 2, 16, 13, 13, 25, 774, DateTimeKind.Utc).AddTicks(1054),
+                            Id = new Guid("929907ad-611d-4340-9779-5a4a8fde5efd"),
+                            CreatedDate = new DateTime(2025, 2, 16, 15, 1, 38, 143, DateTimeKind.Utc).AddTicks(5032),
                             Description = "Kullanıcı",
                             IsDeleted = false,
                             Name = "User"
@@ -299,16 +324,21 @@ namespace AU_Framework.Persistance.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -320,16 +350,22 @@ namespace AU_Framework.Persistance.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Password")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("RefreshToken")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime?>("RefreshTokenExpires")
                         .HasColumnType("datetime2");
@@ -339,7 +375,14 @@ namespace AU_Framework.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Phone")
+                        .IsUnique()
+                        .HasFilter("[Phone] IS NOT NULL");
+
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("RoleUser", b =>
@@ -362,7 +405,7 @@ namespace AU_Framework.Persistance.Migrations
                     b.HasOne("AU_Framework.Domain.Entities.OrderStatus", "OrderStatus")
                         .WithMany("Orders")
                         .HasForeignKey("OrderStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("AU_Framework.Domain.Entities.User", "User")
@@ -398,10 +441,14 @@ namespace AU_Framework.Persistance.Migrations
             modelBuilder.Entity("AU_Framework.Domain.Entities.Product", b =>
                 {
                     b.HasOne("AU_Framework.Domain.Entities.Category", "Category")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("AU_Framework.Domain.Entities.Category", null)
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId1");
 
                     b.Navigation("Category");
                 });

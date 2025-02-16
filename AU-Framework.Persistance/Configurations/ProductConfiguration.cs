@@ -4,44 +4,41 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AU_Framework.Persistance.Configurations
 {
-    public class ProductConfiguration : IEntityTypeConfiguration<Product>
+    public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
-            
             builder.ToTable("Products");
 
-            builder.HasKey(p => p.Id);
+            builder.HasKey(x => x.Id);
 
-            builder.Property(p => p.ProductName)
+            builder.Property(x => x.ProductName)
                 .IsRequired()
                 .HasMaxLength(200);
 
-            builder.Property(p => p.Description)
-                .HasMaxLength(500);
+            builder.Property(x => x.Description)
+                .HasMaxLength(1000);
 
-            builder.Property(p => p.Price)
-                .IsRequired()
-                .HasColumnType("decimal(18,2)");
+            builder.Property(x => x.Price)
+                .HasPrecision(18, 2);
 
-            builder.Property(p => p.StockQuantity)
+            builder.Property(x => x.StockQuantity)
                 .IsRequired();
 
-            builder.Property(p => p.CreatedDate)
+            builder.Property(x => x.CreatedDate)
                 .IsRequired();
 
-            builder.Property(p => p.UpdatedDate)
+            builder.Property(x => x.UpdatedDate)
                 .IsRequired(false);
 
-            builder.Property(p => p.IsDeleted)
+            builder.Property(x => x.IsDeleted)
                 .IsRequired()
                 .HasDefaultValue(false);
 
-     
-            builder.HasOne(p => p.Category)
-                .WithMany(c => c.Products)
-                .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict); 
+            builder.HasOne(x => x.Category)
+                .WithMany()
+                .HasForeignKey("CategoryId")
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

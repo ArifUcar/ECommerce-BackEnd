@@ -1,6 +1,7 @@
 ﻿using AU_Framework.Domain.Abstract;
 using AU_Framework.Domain.Entities;
 using Microsoft.EntityFrameworkCore;  
+using AU_Framework.Persistance.Configurations;
 
 namespace AU_Framework.Persistance.Context
 {
@@ -10,38 +11,27 @@ namespace AU_Framework.Persistance.Context
         // DbContext sınıfının yapıcısı (constructor) içerideki seçenekleri (DbContextOptions) alır ve üst sınıfa gönderir.
         public AppDbContext(DbContextOptions options) : base(options) { }
 
+        // DbSet tanımlamaları
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
         public DbSet<Log> Logs { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
         // OnModelCreating, model yapılandırmalarını uygulamak için kullanılır.
         // Burada, yapılandırmalar AssemblyReferance sınıfından alınan derlemeye göre uygulanır.
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // User-Role ilişkisi
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Roles)
-                .WithMany(r => r.Users)
-                .UsingEntity(j => j.ToTable("UserRoles"));
+            // Entity configurations
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new LogConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderConfiguration());
 
-            // Varsayılan rolleri ekle
-            modelBuilder.Entity<Role>().HasData(
-                new Role { Id = Guid.NewGuid(), Name = "Admin", Description = "Sistem Yöneticisi" },
-                new Role { Id = Guid.NewGuid(), Name = "Manager", Description = "Yönetici" },
-                new Role { Id = Guid.NewGuid(), Name = "User", Description = "Kullanıcı" }
-            );
-
-            modelBuilder.Entity<Log>(entity =>
-            {
-                entity.ToTable("Logs");
-                entity.Property(e => e.Level).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Message).IsRequired();
-                entity.Property(e => e.Exception).HasMaxLength(4000);
-                entity.Property(e => e.MethodName).HasMaxLength(255);
-                entity.Property(e => e.RequestPath).HasMaxLength(2000);
-                entity.Property(e => e.RequestMethod).HasMaxLength(20);
-                entity.Property(e => e.RequestBody).HasMaxLength(4000);
-                entity.Property(e => e.UserId).HasMaxLength(450);
-                entity.Property(e => e.UserName).HasMaxLength(256);
-            });
+            base.OnModelCreating(modelBuilder);
         }
 
         // SaveChangesAsync, veritabanına yapılan değişiklikleri kaydeder.

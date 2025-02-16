@@ -25,7 +25,12 @@ public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, Me
             Address = request.Address
         };
 
-        await _authService.RegisterAsync(user, request.Password, cancellationToken);
+        await _authService.RegisterAsync(
+            user: user,
+            password: request.Password,
+            roleNames: request.Roles ?? new List<string>(),
+            cancellationToken: cancellationToken);
+
         return new MessageResponse("Kullanıcı başarıyla kaydedildi");
     }
 } 

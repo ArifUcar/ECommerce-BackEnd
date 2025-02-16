@@ -167,6 +167,9 @@ app.UseAuthorization();
 // Request loglama middleware'ini ekle
 app.UseMiddleware<RequestLoggingMiddleware>();
 
+// Global exception handling
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.MapControllers();
 
 app.Run();

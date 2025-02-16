@@ -1,89 +1,89 @@
-﻿using AU_Framework.Domain.Entities;
-using AU_Framework.Persistance.Context;
-using FluentValidation;
+﻿#nullable enable
+
+using AU_Framework.Application.Services;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Net;
+using System.Text.Json;
 
-namespace AU_Framework.WebAPI.Middleware
+namespace AU_Framework.WebAPI.Middleware;
+
+public sealed class ExceptionMiddleware : IMiddleware
 {
-    public class ExceptionMiddleware : IMiddleware
+    private readonly ILogService _logger;
+
+    public ExceptionMiddleware(ILogService logger)
     {
-        private readonly AppDbContext _appDbContext;
+        _logger = logger;
+    }
 
-        public ExceptionMiddleware(AppDbContext appDbContext)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    {
+        try
         {
-            _appDbContext = appDbContext;
+            await next(context);
         }
-
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        catch (UnauthorizedAccessException ex)
         {
-            try
-            {
-                await next(context);
-            }
-            catch (Exception ex)
-            {
-                await LogExceptionToDatabaseAsync(ex, context.Request);
-                await HandleExceptionAsync(context, ex);
-            }
+            await HandleExceptionAsync(context, ex, HttpStatusCode.Unauthorized);
         }
-
-        private async Task HandleExceptionAsync(HttpContext context, Exception ex)
+        catch (InvalidOperationException ex)
         {
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = 500; // Varsayılan hata kodu
-
-            if (ex is ValidationException validationException)
-            {
-                context.Response.StatusCode = 400; // Bad Request
-
-                var validationErrors = validationException.Errors
-                    .Select(e => $"{e.PropertyName}: {e.ErrorMessage}") // PropertyName + Message
-                    .ToList();
-
-                var errorResponse = new ValidationErrorDetails
-                {
-                    StatusCode = 403,
-                    Errors = validationErrors
-                };
-
-                await context.Response.WriteAsync(errorResponse.ToString());
-                return;
-            }
-
-            var errorResult = new ErrorResult
-            {
-                Message = ex.Message,
-                StatusCode = context.Response.StatusCode
-            };
-
-            await context.Response.WriteAsync(errorResult.ToString());
+            await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
         }
-
-        private async Task LogExceptionToDatabaseAsync(Exception ex, HttpRequest request)
+        catch (ArgumentException ex)
         {
-            try
-            {
-                var errorLog = new ErrorLog
-                {
-                    ErrorMessage = ex.Message,
-                    StackTrace = ex.StackTrace,
-                    RequestPath = request.Path,
-                    RequestMethod = request.Method,
-                    Timestamp = DateTime.Now
-                };
-
-                await _appDbContext.Set<ErrorLog>().AddAsync(errorLog);
-                await _appDbContext.SaveChangesAsync();
-            }
-            catch (Exception logEx)
-            {
-                Console.WriteLine($"[HATA] Log kaydedilirken hata oluştu: {logEx.Message}");
-            }
+            await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
+        }
+        catch (Exception ex)
+        {
+            await HandleExceptionAsync(context, ex, HttpStatusCode.InternalServerError);
         }
     }
+
+    private async Task HandleExceptionAsync(HttpContext context, Exception ex, HttpStatusCode statusCode)
+    {
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)statusCode;
+
+        var errorResponse = new ErrorResponse
+        {
+            StatusCode = context.Response.StatusCode,
+            Message = ex.Message,
+            Path = context.Request.Path,
+            Method = context.Request.Method,
+            Timestamp = DateTime.UtcNow
+        };
+
+        // Development ortamında daha detaylı hata bilgisi
+        if (context.RequestServices.GetService<IWebHostEnvironment>()?.IsDevelopment() ?? false)
+        {
+            errorResponse.StackTrace = ex.StackTrace;
+            errorResponse.Source = ex.Source;
+            errorResponse.InnerException = ex.InnerException?.Message;
+        }
+
+        // Hatayı logla
+        var logMessage = $"HTTP {context.Request.Method} {context.Request.Path} failed with status code {statusCode}";
+        await _logger.LogError(ex, logMessage);
+
+        var result = JsonSerializer.Serialize(errorResponse, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
+        });
+
+        await context.Response.WriteAsync(result);
+    }
+}
+
+public class ErrorResponse
+{
+    public int StatusCode { get; set; }
+    public string Message { get; set; }
+    public string Path { get; set; }
+    public string Method { get; set; }
+    public DateTime Timestamp { get; set; }
+    public string? StackTrace { get; set; }
+    public string? Source { get; set; }
+    public string? InnerException { get; set; }
 }

@@ -48,7 +48,7 @@ public sealed class RoleController : ApiController
     }
 
     [HttpGet("[action]")]
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Roles = "Admin,Manager,User")]
     public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
     {
         var roles = await _roleService.GetAllRolesAsync(cancellationToken);

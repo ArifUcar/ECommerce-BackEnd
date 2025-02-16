@@ -10,76 +10,102 @@ using System.Threading;
 
 namespace AU_Framework.Persistance.Repository
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
+    public class Repository<T> : IRepository<T> where T : class
     {
         protected readonly AppDbContext _context;
-        private readonly DbSet<TEntity> _dbSet;
+        private readonly DbSet<T> _dbSet;
 
         public Repository(AppDbContext context)
         {
             _context = context;
-            _dbSet = context.Set<TEntity>();
+            _dbSet = context.Set<T>();
         }
 
-        public async Task<TEntity?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
         }
 
-        public async Task<TEntity?> GetFirstAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
-        public async Task<TEntity?> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<T?> GetFirstWithIncludeAsync(
+            Expression<Func<T, bool>> predicate,
+            Func<IQueryable<T>, IQueryable<T>> include,
+            CancellationToken cancellationToken = default)
+        {
+            IQueryable<T> query = _dbSet;
+            query = include(query);
+            return await query.FirstOrDefaultAsync(predicate, cancellationToken);
+        }
+
+        public async Task<T?> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await _dbSet.SingleOrDefaultAsync(predicate, cancellationToken);
         }
 
-        public Task<IQueryable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+        public Task<IQueryable<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_dbSet.AsQueryable());
         }
 
-        public Task<IQueryable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        public Task<IQueryable<T>> GetAllWithIncludeAsync(
+            Func<IQueryable<T>, IQueryable<T>> include,
+            CancellationToken cancellationToken = default)
+        {
+            IQueryable<T> query = _dbSet;
+            query = include(query);
+            return Task.FromResult(query);
+        }
+
+        public Task<IQueryable<T>> GetAllWithPredicateAsync(
+            Expression<Func<T, bool>> predicate,
+            CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_dbSet.Where(predicate));
         }
 
-        public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public Task<IQueryable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(_dbSet.Where(predicate));
+        }
+
+        public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
         {
             var entry = await _dbSet.AddAsync(entity, cancellationToken);
             await SaveChangesAsync(cancellationToken);
             return entry.Entity;
         }
 
-        public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        public async Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
         {
             await _dbSet.AddRangeAsync(entities, cancellationToken);
             await SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public async Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
             var entry = _dbSet.Update(entity);
             await SaveChangesAsync(cancellationToken);
             return entry.Entity;
         }
 
-        public async Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public async Task<T> DeleteAsync(T entity, CancellationToken cancellationToken = default)
         {
             var entry = _dbSet.Remove(entity);
             await SaveChangesAsync(cancellationToken);
             return entry.Entity;
         }
 
-        public async Task RemoveRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        public async Task RemoveRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
         {
             _dbSet.RemoveRange(entities);
             await SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await _dbSet.AnyAsync(predicate, cancellationToken);
         }
