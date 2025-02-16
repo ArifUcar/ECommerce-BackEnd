@@ -51,33 +51,40 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo 
     { 
         Title = "AU Framework API", 
-        Version = "v1" 
+        Version = "v1",
+        Description = "AU Framework API Documentation"
     });
 
-    // JWT desteği için
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    // JWT authentication için security tanımı
+    var securityScheme = new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityDefinition("Bearer", securityScheme);
+
+    var securityRequirement = new OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
+            securityScheme,
+            new[] { "Bearer" }
         }
-    });
+    };
+
+    c.AddSecurityRequirement(securityRequirement);
+
+    // [Authorize] attribute'u olan endpoint'leri işaretle
+    c.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
 // JWT Authentication yapılandırması
@@ -166,6 +173,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "AU Framework API V1");
+        c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+        c.DefaultModelsExpandDepth(-1);
+        
+        // JWT token için authorize butonu ayarları
+        c.OAuthUsePkce();
     });
 }
 app.UseMiddlewareExtensions();
@@ -177,6 +189,10 @@ app.UseCors("AllowAll");
 
 // Authentication ve Authorization sırası önemli
 app.UseAuthentication();
+
+// AUAuthorize middleware'ini Authorization'dan önce ekleyin
+app.UseAUAuthorize();
+
 app.UseAuthorization();
 
 // Request loglama middleware'ini ekle
