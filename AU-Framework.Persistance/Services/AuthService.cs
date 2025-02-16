@@ -115,7 +115,7 @@ public sealed class AuthService : IAuthService
                 throw new Exception("Kullanıcı rolü bulunamadı!");
             }
 
-            string token = GenerateJwtToken(user);
+            string token = GenerateToken(user, user.Roles.Select(r => r.Name).ToList());
             user.GenerateRefreshToken();
             await _userRepository.UpdateAsync(user, cancellationToken);
 
@@ -141,7 +141,7 @@ public sealed class AuthService : IAuthService
         if (user is null || !user.IsRefreshTokenValid())
             throw new Exception("Geçersiz refresh token!");
 
-        string token = GenerateJwtToken(user);
+        string token = GenerateToken(user, user.Roles.Select(r => r.Name).ToList());
         user.GenerateRefreshToken();
         await _userRepository.UpdateAsync(user, cancellationToken);
 
@@ -251,7 +251,7 @@ public sealed class AuthService : IAuthService
         return true;
     }
 
-    private string GenerateJwtToken(User user)
+    private string GenerateToken(User user, List<string> roles)
     {
         var claims = new List<Claim>
         {
@@ -260,23 +260,21 @@ public sealed class AuthService : IAuthService
             new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
         };
 
-        if (user.Roles != null)
+        // Rolleri ekle
+        foreach (var role in roles)
         {
-            foreach (var role in user.Roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role.Name));
-            }
+            claims.Add(new(ClaimTypes.Role, role));
         }
 
-        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!);
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
+        
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256)
+            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
