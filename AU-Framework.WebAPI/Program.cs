@@ -29,6 +29,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Repository servisini kaydediyoruz
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -38,8 +39,11 @@ builder.Services.AddScoped<AppDbContext>();
 builder.Services.AddTransient<ExceptionMiddleware>();
 builder.Services.AddAutoMapper(typeof(AU_Framework.Persistance.AssemblyReferance).Assembly);
 
-string connectingString = builder.Configuration.GetConnectionString("SqlServer");
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectingString));
+// DbContext yapılandırması
+string connectionString = builder.Configuration.GetConnectionString("SqlServer");
+builder.Services.AddDbContext<AppDbContext>(options => 
+    options.UseSqlServer(connectionString));
+
 builder.Services.AddControllers().AddApplicationPart(typeof(AU_Framework.Presentation.AssemblyReferance).Assembly );
 builder.Services.AddMediatR(cfr => cfr.RegisterServicesFromAssembly(typeof(AU_Framework.Application.AsssemblyReferance).Assembly)); 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>),typeof(ValidationBehavior<,>));
