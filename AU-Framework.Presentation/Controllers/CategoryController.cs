@@ -38,7 +38,7 @@ namespace AU_Framework.Presentation.Controllers
         }
 
         [HttpGet("[action]/{id}")]
-        public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
             GetCategoryByIdQuery query = new(id);
             Category response = await _mediator.Send(query, cancellationToken);
@@ -53,7 +53,7 @@ namespace AU_Framework.Presentation.Controllers
         }
 
         [HttpDelete("[action]/{id}")]
-        public async Task<IActionResult> DeleteCategory(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteCategory(Guid id, CancellationToken cancellationToken)
         {
             DeleteCategoryCommand request = new(id);
             MessageResponse response = await _mediator.Send(request, cancellationToken);

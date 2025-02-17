@@ -4,6 +4,6 @@ using MediatR;
 namespace AU_Framework.Application.Features.CategoryFeatures.Command.DeleteCategory
 {
     public sealed record DeleteCategoryCommand(
-        string Id
+        Guid Id
     ) : IRequest<MessageResponse>;
 } 

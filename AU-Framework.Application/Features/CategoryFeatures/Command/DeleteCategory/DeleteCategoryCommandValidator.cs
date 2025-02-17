@@ -8,14 +8,10 @@ namespace AU_Framework.Application.Features.CategoryFeatures.Command.DeleteCateg
         {
             RuleFor(x => x.Id)
                 .NotEmpty()
-                .WithMessage("Kategori ID'si boş olamaz!")
-                .Must(BeValidGuid)
-                .WithMessage("Geçersiz kategori ID'si formatı!");
+                .WithMessage("Kategori ID'si boş olamaz!");
+            
         }
 
-        private bool BeValidGuid(string id)
-        {
-            return Guid.TryParse(id, out _);
-        }
+        
     }
 } 

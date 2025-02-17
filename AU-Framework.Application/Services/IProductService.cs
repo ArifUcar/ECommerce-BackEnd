@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AU_Framework.Domain.Dtos;
 
 namespace AU_Framework.Application.Services
 {
@@ -15,7 +16,8 @@ namespace AU_Framework.Application.Services
         Task CreateAsync(CreateProductCommand request, CancellationToken cancellationToken);
         Task UpdateAsync(UpdateProductCommand request, CancellationToken cancellationToken);
         Task DeleteAsync(DeleteProductCommand request, CancellationToken cancellationToken);
-        Task<Product> GetByIdAsync(string id, CancellationToken cancellationToken);
-        Task<IList<Product>> GetAllAsync(CancellationToken cancellationToken);
+        Task<ProductDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+        Task<IList<ProductDto>> GetAllAsync(CancellationToken cancellationToken);
+        Task<IList<ProductDto>> GetByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken);
     }
 }

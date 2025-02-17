@@ -4,7 +4,7 @@ using MediatR;
 namespace AU_Framework.Application.Features.ProductFeatures.Commands.UpdateProduct;
 
 public sealed record UpdateProductCommand(
-    string Id,
+    Guid Id,
     string ProductName,
     string Description,
     decimal Price,

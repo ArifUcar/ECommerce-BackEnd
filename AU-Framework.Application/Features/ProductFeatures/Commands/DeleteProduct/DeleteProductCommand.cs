@@ -4,5 +4,5 @@ using MediatR;
 namespace AU_Framework.Application.Features.ProductFeatures.Commands.DeleteProduct;
 
 public sealed record DeleteProductCommand(
-    string Id
+    Guid Id
 ) : IRequest<MessageResponse>; 

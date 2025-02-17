@@ -7,12 +7,9 @@ public sealed class DeleteProductCommandValidator : AbstractValidator<DeleteProd
     public DeleteProductCommandValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Ürün ID'si boş olamaz!")
-            .Must(BeValidGuid).WithMessage("Geçersiz ürün ID'si formatı!");
+            .NotEmpty().WithMessage("Ürün ID'si boş olamaz!");
+            
     }
 
-    private bool BeValidGuid(string id)
-    {
-        return Guid.TryParse(id, out _);
-    }
+
 } 

@@ -83,7 +83,7 @@ namespace AU_Framework.Persistance.Services
             }
         }
 
-        public async Task<Category> GetByIdAsync(string id, CancellationToken cancellationToken)
+        public async Task<Category> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             Category? category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
             if (category == null || category.IsDeleted)
@@ -91,5 +91,7 @@ namespace AU_Framework.Persistance.Services
             
             return category;
         }
+
+      
     }
 }

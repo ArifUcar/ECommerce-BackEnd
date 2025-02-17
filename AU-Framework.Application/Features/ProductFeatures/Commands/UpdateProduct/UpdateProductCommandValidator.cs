@@ -7,8 +7,8 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
     public UpdateProductCommandValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Ürün ID'si boş olamaz!")
-            .Must(BeValidGuid).WithMessage("Geçersiz ürün ID'si formatı!");
+            .NotEmpty().WithMessage("Ürün ID'si boş olamaz!");
+           
 
         RuleFor(x => x.ProductName)
             .NotEmpty().WithMessage("Ürün adı boş olamaz!")
@@ -28,8 +28,5 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
             .NotEmpty().WithMessage("Kategori ID'si boş olamaz!");
     }
 
-    private bool BeValidGuid(string id)
-    {
-        return Guid.TryParse(id, out _);
-    }
+ 
 } 

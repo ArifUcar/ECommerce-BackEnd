@@ -1,10 +1,10 @@
 using AU_Framework.Application.Services;
-using AU_Framework.Domain.Entities;
+using AU_Framework.Domain.Dtos;
 using MediatR;
 
 namespace AU_Framework.Application.Features.ProductFeatures.Queries.GetProductById;
 
-public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, Product>
+public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ProductDto>
 {
     private readonly IProductService _productService;
 
@@ -13,7 +13,7 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
         _productService = productService;
     }
 
-    public async Task<Product> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
+    public async Task<ProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
         return await _productService.GetByIdAsync(request.Id, cancellationToken);
     }

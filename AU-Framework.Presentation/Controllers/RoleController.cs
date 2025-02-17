@@ -22,7 +22,7 @@ public class RoleController : ControllerBase
 
     [HttpPost("[action]")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> AssignRole(string userId, string roleName, CancellationToken cancellationToken)
+    public async Task<IActionResult> AssignRole(Guid userId, string roleName, CancellationToken cancellationToken)
     {
         var result = await _roleService.AssignRoleToUserAsync(userId, roleName, cancellationToken);
         return Ok(result);
@@ -30,7 +30,7 @@ public class RoleController : ControllerBase
 
     [HttpPost("[action]")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> RemoveRole(string userId, string roleName, CancellationToken cancellationToken)
+    public async Task<IActionResult> RemoveRole(Guid userId, string roleName, CancellationToken cancellationToken)
     {
         var result = await _roleService.RemoveRoleFromUserAsync(userId, roleName, cancellationToken);
         return Ok(result);
@@ -38,7 +38,7 @@ public class RoleController : ControllerBase
 
     [HttpGet("[action]")]
     [Authorize(Roles = "Admin,Manager")]
-    public async Task<IActionResult> GetUserRoles(string userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetUserRoles(Guid userId, CancellationToken cancellationToken)
     {
         var roles = await _roleService.GetUserRolesAsync(userId, cancellationToken);
         return Ok(roles);

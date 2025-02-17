@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="Features\AuthFeatures\Queries\" />
-    <Folder Include="Features\OrderFeatures\" />
   </ItemGroup>
 
 </Project>

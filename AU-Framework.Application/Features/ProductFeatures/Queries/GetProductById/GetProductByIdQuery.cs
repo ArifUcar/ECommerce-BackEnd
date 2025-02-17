@@ -1,8 +1,8 @@
-using AU_Framework.Domain.Entities;
+using AU_Framework.Domain.Dtos;
 using MediatR;
 
 namespace AU_Framework.Application.Features.ProductFeatures.Queries.GetProductById;
 
 public sealed record GetProductByIdQuery(
-    string Id
-) : IRequest<Product>; 
+    Guid Id
+) : IRequest<ProductDto>; 

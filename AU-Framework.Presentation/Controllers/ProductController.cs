@@ -3,6 +3,7 @@ using AU_Framework.Application.Features.ProductFeatures.Commands.DeleteProduct;
 using AU_Framework.Application.Features.ProductFeatures.Commands.UpdateProduct;
 using AU_Framework.Application.Features.ProductFeatures.Queries.GetAllProducts;
 using AU_Framework.Application.Features.ProductFeatures.Queries.GetProductById;
+using AU_Framework.Application.Features.ProductFeatures.Queries.GetProductsByCategoryId;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,7 @@ public sealed class ProductController : ControllerBase
 
     [HttpGet("[action]/{id}")]
     [AllowAnonymous] // Bu endpoint için yetkilendirme gerekmez
-    public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var response = await _mediator.Send(new GetProductByIdQuery(id), cancellationToken);
         return Ok(response);
@@ -53,9 +54,16 @@ public sealed class ProductController : ControllerBase
 
     [HttpDelete("[action]/{id}")]
     [Authorize(Roles = "Admin")] // Sadece Admin erişebilir
-    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         var response = await _mediator.Send(new DeleteProductCommand(id), cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpGet("[action]/{categoryId}")]
+    public async Task<IActionResult> GetByCategory(Guid categoryId, CancellationToken cancellationToken)
+    {
+        var response = await _mediator.Send(new GetProductsByCategoryIdQuery(categoryId), cancellationToken);
         return Ok(response);
     }
 } 

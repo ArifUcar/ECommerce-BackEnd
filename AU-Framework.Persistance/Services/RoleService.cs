@@ -18,7 +18,7 @@ public sealed class RoleService : IRoleService
         _roleRepository = roleRepository;
     }
 
-    public async Task<bool> AssignRoleToUserAsync(string userId, string roleName, CancellationToken cancellationToken)
+    public async Task<bool> AssignRoleToUserAsync(Guid userId, string roleName, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
         if (user is null)
@@ -36,7 +36,7 @@ public sealed class RoleService : IRoleService
         return true;
     }
 
-    public async Task<bool> RemoveRoleFromUserAsync(string userId, string roleName, CancellationToken cancellationToken)
+    public async Task<bool> RemoveRoleFromUserAsync(Guid userId, string roleName, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
         if (user is null)
@@ -51,7 +51,7 @@ public sealed class RoleService : IRoleService
         return true;
     }
 
-    public async Task<IList<Role>> GetUserRolesAsync(string userId, CancellationToken cancellationToken)
+    public async Task<IList<Role>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
         if (user is null)
@@ -69,7 +69,7 @@ public sealed class RoleService : IRoleService
         return role.Users.ToList();
     }
 
-    public async Task<bool> IsUserInRoleAsync(string userId, string roleName, CancellationToken cancellationToken)
+    public async Task<bool> IsUserInRoleAsync(Guid userId, string roleName, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
         if (user is null)

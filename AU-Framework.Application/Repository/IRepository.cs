@@ -6,7 +6,7 @@ namespace AU_Framework.Application.Repository
     public interface IRepository<T> where T : class
     {
         // Tekil kayıt getirme işlemleri
-        Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
+        Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
         Task<T?> GetFirstWithIncludeAsync(
             Expression<Func<T, bool>> predicate,

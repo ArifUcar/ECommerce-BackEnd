@@ -22,16 +22,14 @@ namespace AU_Framework.Persistance.Repository
             _dbSet = context.Set<T>();
         }
 
-        public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            Guid guidId;
-            if (!Guid.TryParse(id, out guidId))
-            {
-                throw new Exception("Geçersiz ID formatı!");
-            }
+            if (id == Guid.Empty)
+                throw new ArgumentException("Geçersiz ID formatı!", nameof(id));
 
-            return await _dbSet.FindAsync(new object[] { guidId }, cancellationToken);
+            return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
         }
+
 
         public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {

@@ -15,6 +15,6 @@ public interface ICategoryService
       Task<IList<Category>> GetAllAsync(GetAllCategoryQuery request, CancellationToken cancellationToken);
       Task UpdateAsync(UpdateCategoryCommand request, CancellationToken cancellationToken);
       Task DeleteAsync(DeleteCategoryCommand request, CancellationToken cancellationToken);
-      Task<Category> GetByIdAsync(string id, CancellationToken cancellationToken);
+      Task<Category> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 }
 

@@ -5,6 +5,8 @@ using AU_Framework.Domain.Entities;
 using AU_Framework.Domain.Dtos;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using AU_Framework.Application.Features.OrderFeatures.Commands.DeleteOrder;
+using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrder;
 
 namespace AU_Framework.Persistance.Services;
 
@@ -93,35 +95,39 @@ public sealed class OrderService : IOrderService
         return _mapper.Map<OrderDto>(order);
     }
 
-    public async Task UpdateAsync(Order order, CancellationToken cancellationToken)
+    public async Task UpdateAsync(UpdateOrderCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            await _orderRepository.UpdateAsync(order, cancellationToken);
-            await _logger.LogInfo($"Order updated: {order.Id}");
-        }
-        catch (Exception ex)
-        {
-            await _logger.LogError(ex, $"Error updating order: {order.Id}");
-            throw;
-        }
+        Order order = await _orderRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (order == null)
+            throw new Exception("Sipariş bulunamadı!"); // ✅ Hata mesajı düzeltildi.
+
+        // ✅ Doğru mapleme işlemi
+        _mapper.Map(request, order);
+
+        await _orderRepository.UpdateAsync(order, cancellationToken);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+
+    public async Task DeleteAsync(DeleteOrderCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            var order = await _orderRepository.GetByIdAsync(id.ToString(), cancellationToken);
-            if (order is null)
-                throw new Exception("Sipariş bulunamadı!");
+            Order? order = await _orderRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (order == null)
+            {
+                throw new Exception("Sipariş bulunamadı");
+            }
+            order.IsDeleted = true;
+            await _orderRepository.UpdateAsync(order, cancellationToken);
 
-            await _orderRepository.DeleteAsync(order, cancellationToken);
-            await _logger.LogInfo($"Order deleted: {id}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex.Message=="Geçersiz ID formatı!")
         {
-            await _logger.LogError(ex, $"Error deleting order: {id}");
-            throw;
+            throw new Exception("Geçersiz kategori ID'si formatı!");
+        }
+        catch (Exception)
+        {
+            throw new Exception("Sipariş silme işlemi sırasında bir hata oluştu!");
         }
     }
 } 

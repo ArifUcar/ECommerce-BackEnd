@@ -4,7 +4,7 @@ using MediatR;
 namespace AU_Framework.Application.Features.CategoryFeatures.Command.UpdateCategory
 {
     public sealed record UpdateCategoryCommand(
-        string Id,
+        Guid Id,
         string CategoryName
     ) : IRequest<MessageResponse>;
 } 

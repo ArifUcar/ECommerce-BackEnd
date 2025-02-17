@@ -162,7 +162,7 @@ public sealed class AuthService : IAuthService
     }
 
     public async Task<bool> ChangePasswordAsync(
-        string userId,
+        Guid userId,
         string currentPassword,
         string newPassword,
         CancellationToken cancellationToken)
@@ -248,7 +248,7 @@ public sealed class AuthService : IAuthService
     }
 
     public async Task<bool> RevokeTokenAsync(
-        string userId,
+        Guid userId,
         CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
