@@ -101,11 +101,19 @@ public sealed class OrderService : IOrderService
         if (order == null)
             throw new Exception("Sipariş bulunamadı!"); // ✅ Hata mesajı düzeltildi.
 
-        // ✅ Doğru mapleme işlemi
-        _mapper.Map(request, order);
+        // 🛠 Doğru atamalar
+        order.OrderDate = request.OrderDate;
+        order.OrderStatusId = request.OrderStatusId;
+        order.TotalAmount = request.TotalAmount;
+
+        // 🛠 Eğer `UserId` de güncellenmek isteniyorsa
+        order.UserId = request.UserId;
+
+  
 
         await _orderRepository.UpdateAsync(order, cancellationToken);
     }
+
 
 
     public async Task DeleteAsync(DeleteOrderCommand request, CancellationToken cancellationToken)

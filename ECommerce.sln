@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{9446CF1E-7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AU-Framework.UnitTest", "AU-Framework.UnitTest\AU-Framework.UnitTest.csproj", "{F1C0DCBF-C9B7-4119-BFF7-193E3A3C39B3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FrontEnd", "FrontEnd", "{FEC2709F-ED1F-4F01-B649-7AEEAEB3BCD1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -8,8 +8,7 @@ namespace AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrder;
             Guid UserId,
     DateTime OrderDate,
     Guid OrderStatusId,
-    decimal TotalAmount,
-    List<OrderDetailDto> OrderDetails
+    decimal TotalAmount
 
         ):IRequest<MessageResponse>;
     
