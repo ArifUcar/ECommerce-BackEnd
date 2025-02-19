@@ -1,7 +1,8 @@
 .hero-section {
-    padding: 4rem 0;
+    padding: 3rem 0;
     background-color: #f8f9fa;
-    margin-bottom: 3rem;
+    border-radius: 1rem;
+    margin: 2rem 0;
 }
 
 .card {
@@ -19,18 +20,57 @@
     object-fit: cover;
 }
 
+.feature-card {
+    background-color: white;
+    border-radius: 1rem;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
 .feature-icon {
-    font-size: 2rem;
+    font-size: 2.5rem;
     color: #0d6efd;
-    margin-bottom: 1rem;
+}
+
+.feature-icon i {
+    background-color: #e7f1ff;
+    padding: 1rem;
+    border-radius: 50%;
+}
+
+.btn {
+    padding: 0.8rem 2rem;
+    font-weight: 500;
+}
+
+.btn i {
+    margin-right: 0.5rem;
+}
+
+.text-primary {
+    color: #0d6efd !important;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
 }
 
 @media (max-width: 768px) {
     .hero-section {
         padding: 2rem 0;
+        margin: 1rem 0;
     }
 
     .card-img-top {
         height: 150px;
+    }
+
+    .feature-card {
+        margin-bottom: 1rem;
     }
 } 

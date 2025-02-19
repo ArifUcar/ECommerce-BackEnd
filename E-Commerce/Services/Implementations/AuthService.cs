@@ -14,6 +14,7 @@ public class AuthService : IAuthService
     private const string TokenKey = "auth_token";
     private string? _cachedToken;
 
+
     public AuthService(HttpClient httpClient, IJSRuntime jsRuntime)
     {
         _httpClient = httpClient;
@@ -22,20 +23,49 @@ public class AuthService : IAuthService
 
     public bool IsAuthenticated => !string.IsNullOrEmpty(_cachedToken);
 
-    public async Task<LoginResponse> LoginAsync(LoginRequest request)
+    public async Task<ApiResponse> LoginAsync(LoginRequest request)
     {
-        var response = await _httpClient.PostAsJsonAsync($"{EnvironmentHelper.ApiBaseUrl}/Auth/Login", request);
-        response.EnsureSuccessStatusCode();
-        
-        var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
-        if (loginResponse == null)
-            throw new Exception("Giriş başarısız");
+        try
+        {
+            Console.WriteLine($"Login attempt with email: {request.Email}"); // Debug için
 
-        // Token'ı localStorage'a kaydet
-        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", TokenKey, loginResponse.Token);
-        _cachedToken = loginResponse.Token;
+            var loginData = new Dictionary<string, string>
+            {
+                { "Email", request.Email },
+                { "Password", request.Password }
+            };
 
-        return loginResponse;
+            var response = await _httpClient.PostAsJsonAsync($"{EnvironmentHelper.ApiBaseUrl}/Auth/Login", loginData);
+            
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"API Response: {responseContent}"); // Debug için
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                if (result?.Success == true && !string.IsNullOrEmpty(result.Token))
+                {
+                    await _jsRuntime.InvokeVoidAsync("localStorage.setItem", TokenKey, result.Token);
+                    _cachedToken = result.Token;
+                }
+                return result ?? new ApiResponse { Success = false, Message = "Beklenmeyen bir hata oluştu" };
+            }
+            
+            return new ApiResponse 
+            { 
+                Success = false, 
+                Message = $"Giriş başarısız: {responseContent}" 
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Login error: {ex.Message}"); // Debug için
+            return new ApiResponse 
+            { 
+                Success = false, 
+                Message = $"Giriş yapılırken hata oluştu: {ex.Message}" 
+            };
+        }
     }
 
     public async Task<string> RegisterAsync(RegisterRequest request)

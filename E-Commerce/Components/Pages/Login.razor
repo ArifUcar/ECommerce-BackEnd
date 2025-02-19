@@ -1,0 +1,147 @@
+@page "/login"
+@using E_Commerce.Models.Auth
+@using E_Commerce.Services.Interfaces
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject IAntiforgery Antiforgery
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="login-card">
+                <div class="text-center mb-4">
+                    <h2>Giriş Yap</h2>
+                    <p class="text-muted">Hesabınıza giriş yapın</p>
+                </div>
+
+                @if (!string.IsNullOrEmpty(error))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @error
+                    </div>
+                }
+
+                <form @onsubmit="HandleLoginAsync">
+                    <div class="form-group mb-3">
+                        <label for="email">E-posta</label>
+                        <input type="email" 
+                               id="email" 
+                               class="form-control" 
+                               @bind="email" 
+                               @bind:event="oninput" 
+                               required />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="password">Şifre</label>
+                        <div class="input-group">
+                            <input type="@(showPassword ? "text" : "password")" 
+                                   id="password" 
+                                   class="form-control" 
+                                   @bind="password" 
+                                   @bind:event="oninput" 
+                                   required />
+                            <button type="button" 
+                                    class="btn btn-outline-secondary" 
+                                    @onclick="TogglePasswordVisibility">
+                                <i class="bi bi-eye@(showPassword ? "-slash" : "")" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" 
+                                   id="rememberMe" 
+                                   class="form-check-input" 
+                                   @bind="rememberMe" />
+                            <label class="form-check-label" for="rememberMe">
+                                Beni Hatırla
+                            </label>
+                        </div>
+                        <a href="/forgot-password" class="text-primary text-decoration-none">
+                            Şifremi Unuttum
+                        </a>
+                    </div>
+
+                    <button class="btn btn-primary w-100 mb-3" type="submit" disabled="@loading">
+                        @if (loading)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Giriş Yapılıyor...</span>
+                        }
+                        else
+                        {
+                            <span>Giriş Yap</span>
+                        }
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <span class="text-muted">Hesabınız yok mu?</span>
+                    <a href="/register" class="text-primary text-decoration-none ms-1">
+                        Kayıt Ol
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private bool rememberMe;
+    private bool loading;
+    private string? error;
+    private bool showPassword;
+
+    private async Task HandleLoginAsync()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                error = "Lütfen e-posta ve şifre alanlarını doldurun.";
+                return;
+            }
+
+            loading = true;
+            error = null;
+
+            var loginRequest = new LoginRequest
+            {
+                Email = email,
+                Password = password,
+                RememberMe = rememberMe
+            };
+
+            var result = await AuthService.LoginAsync(loginRequest);
+
+            if (result.Success)
+            {
+                NavigationManager.NavigateTo("/", true);
+            }
+            else
+            {
+                error = result.Message ?? "Giriş yapılırken bir hata oluştu.";
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            Console.WriteLine($"Login error: {ex}");
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
+} 
