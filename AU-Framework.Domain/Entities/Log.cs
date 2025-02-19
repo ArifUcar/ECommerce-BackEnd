@@ -1,11 +1,14 @@
 #nullable enable
 using AU_Framework.Domain.Abstract;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AU_Framework.Domain.Entities;
 
 public sealed class Log : BaseEntity
 {
     public string Level { get; set; }
+    [Column(TypeName = "nvarchar(MAX)")]
     public string Message { get; set; }
     public string? Exception { get; set; }
     public string? MethodName { get; set; }

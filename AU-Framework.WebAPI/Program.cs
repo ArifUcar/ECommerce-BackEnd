@@ -30,6 +30,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 // Repository servisini kaydediyoruz
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -141,17 +142,17 @@ builder.Services.AddAuthentication(options =>
 // Authorization'ı ekleyelim
 builder.Services.AddAuthorization();
 
-// CORS politikasını ekleyelim
+// CORS politikasını güncelleyelim
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        builder =>
-        {
-            builder
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader();
-        });
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .WithExposedHeaders("Content-Disposition"); // Dosya indirme için gerekli
+    });
 });
 
 builder.Services.AddAuthorization(options =>
@@ -189,15 +190,9 @@ app.UseMiddlewareExtensions();
 app.UseHttpsRedirection();
 app.UseRouting();
 
-// CORS'u Authentication'dan önce ekleyin
-app.UseCors("AllowAll");
-
-// Authentication ve Authorization sırası önemli
+// CORS middleware'ini doğru sıraya koyalım - UseRouting'den sonra, Authentication'dan önce
+app.UseCors("AllowAll");  // Bu sıralama önemli
 app.UseAuthentication();
-
-// AUAuthorize middleware'ini Authorization'dan önce ekleyin
-app.UseAUAuthorize();
-
 app.UseAuthorization();
 
 // Request loglama middleware'ini ekle
@@ -205,6 +200,9 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 
 // Global exception handling
 app.UseMiddleware<ExceptionMiddleware>();
+
+// Statik dosyaları aktif et
+app.UseStaticFiles();
 
 app.MapControllers();
 

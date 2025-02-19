@@ -4,6 +4,7 @@ using AU_Framework.Persistance.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AU_Framework.Persistance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250219084519_Product-add-base64+")]
+    partial class Productaddbase64
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,7 +85,7 @@ namespace AU_Framework.Persistance.Migrations
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(MAX)");
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("MethodName")
                         .HasMaxLength(255)
@@ -250,8 +253,8 @@ namespace AU_Framework.Persistance.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d1556a52-3800-4499-a501-489c280cfdd8"),
-                            CreatedDate = new DateTime(2025, 2, 19, 9, 13, 1, 378, DateTimeKind.Utc).AddTicks(1831),
+                            Id = new Guid("dc3d82dc-ad36-49cb-9ab8-175a6231d49a"),
+                            CreatedDate = new DateTime(2025, 2, 19, 8, 45, 19, 322, DateTimeKind.Utc).AddTicks(9504),
                             Description = "Sipariş onay bekliyor",
                             DisplayOrder = 1,
                             IsActive = true,
@@ -260,8 +263,8 @@ namespace AU_Framework.Persistance.Migrations
                         },
                         new
                         {
-                            Id = new Guid("09d1a752-d520-4d0b-a9ea-aa671d7f97bf"),
-                            CreatedDate = new DateTime(2025, 2, 19, 9, 13, 1, 378, DateTimeKind.Utc).AddTicks(1834),
+                            Id = new Guid("035a77bc-e138-41c9-8d90-47d3325a8e1d"),
+                            CreatedDate = new DateTime(2025, 2, 19, 8, 45, 19, 322, DateTimeKind.Utc).AddTicks(9507),
                             Description = "Sipariş onaylandı",
                             DisplayOrder = 2,
                             IsActive = true,
@@ -270,8 +273,8 @@ namespace AU_Framework.Persistance.Migrations
                         },
                         new
                         {
-                            Id = new Guid("a6cc3fd0-8a47-4ef7-8567-07e4f463d727"),
-                            CreatedDate = new DateTime(2025, 2, 19, 9, 13, 1, 378, DateTimeKind.Utc).AddTicks(1837),
+                            Id = new Guid("24ab2a7e-5f05-4b08-acf6-083ac4cabc45"),
+                            CreatedDate = new DateTime(2025, 2, 19, 8, 45, 19, 322, DateTimeKind.Utc).AddTicks(9510),
                             Description = "Sipariş hazırlanıyor",
                             DisplayOrder = 3,
                             IsActive = true,
@@ -280,8 +283,8 @@ namespace AU_Framework.Persistance.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11421fe5-8a1c-4ce7-8ba8-a9f434a2264b"),
-                            CreatedDate = new DateTime(2025, 2, 19, 9, 13, 1, 378, DateTimeKind.Utc).AddTicks(1840),
+                            Id = new Guid("43336c79-f6c9-4ef2-a3cb-fe831246c7bc"),
+                            CreatedDate = new DateTime(2025, 2, 19, 8, 45, 19, 322, DateTimeKind.Utc).AddTicks(9517),
                             Description = "Sipariş kargoya verildi",
                             DisplayOrder = 4,
                             IsActive = true,
@@ -290,8 +293,8 @@ namespace AU_Framework.Persistance.Migrations
                         },
                         new
                         {
-                            Id = new Guid("41bc25fe-1005-4cc4-b281-eef63b6eca67"),
-                            CreatedDate = new DateTime(2025, 2, 19, 9, 13, 1, 378, DateTimeKind.Utc).AddTicks(1844),
+                            Id = new Guid("d48a472a-5418-474e-9a91-9313ef33f43e"),
+                            CreatedDate = new DateTime(2025, 2, 19, 8, 45, 19, 322, DateTimeKind.Utc).AddTicks(9519),
                             Description = "Sipariş tamamlandı",
                             DisplayOrder = 5,
                             IsActive = true,
@@ -300,8 +303,8 @@ namespace AU_Framework.Persistance.Migrations
                         },
                         new
                         {
-                            Id = new Guid("515ecd19-9c40-4add-8763-981908bd7a49"),
-                            CreatedDate = new DateTime(2025, 2, 19, 9, 13, 1, 378, DateTimeKind.Utc).AddTicks(1846),
+                            Id = new Guid("ded4a5a7-32f7-4b7a-ba42-b6a5ecc9c53d"),
+                            CreatedDate = new DateTime(2025, 2, 19, 8, 45, 19, 322, DateTimeKind.Utc).AddTicks(9522),
                             Description = "Sipariş iptal edildi",
                             DisplayOrder = 6,
                             IsActive = true,
@@ -401,24 +404,24 @@ namespace AU_Framework.Persistance.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e05d6f0c-8229-4454-b3fc-d3f5478f4392"),
-                            CreatedDate = new DateTime(2025, 2, 19, 9, 13, 1, 376, DateTimeKind.Utc).AddTicks(6569),
+                            Id = new Guid("4e8774a4-d7c1-4838-b61c-e8565aae3931"),
+                            CreatedDate = new DateTime(2025, 2, 19, 8, 45, 19, 321, DateTimeKind.Utc).AddTicks(3828),
                             Description = "Sistem Yöneticisi",
                             IsDeleted = false,
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("61c00b4a-3af4-44d1-8113-121de315d814"),
-                            CreatedDate = new DateTime(2025, 2, 19, 9, 13, 1, 376, DateTimeKind.Utc).AddTicks(6572),
+                            Id = new Guid("e49ba8d0-aca5-454d-a222-595f22163469"),
+                            CreatedDate = new DateTime(2025, 2, 19, 8, 45, 19, 321, DateTimeKind.Utc).AddTicks(3831),
                             Description = "Yönetici",
                             IsDeleted = false,
                             Name = "Manager"
                         },
                         new
                         {
-                            Id = new Guid("3ce4a262-59a7-4d4b-a424-ea3000794d50"),
-                            CreatedDate = new DateTime(2025, 2, 19, 9, 13, 1, 376, DateTimeKind.Utc).AddTicks(6575),
+                            Id = new Guid("14ae6f60-1ecb-4bdf-9a5f-8ac7a9f4fab2"),
+                            CreatedDate = new DateTime(2025, 2, 19, 8, 45, 19, 321, DateTimeKind.Utc).AddTicks(3842),
                             Description = "Kullanıcı",
                             IsDeleted = false,
                             Name = "User"

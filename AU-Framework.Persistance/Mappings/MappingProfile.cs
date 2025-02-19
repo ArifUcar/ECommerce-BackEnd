@@ -15,21 +15,30 @@ public sealed class MappingProfile : Profile
     {
         // Product mappings
         CreateMap<Product, ProductDto>()
-            .ForMember(dest => dest.CategoryName,
-                opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : null))
-            .ForMember(dest => dest.CategoryId,
-                opt => opt.MapFrom(src => src.CategoryId))
-            .ForMember(dest => dest.ProductName,
-                opt => opt.MapFrom(src => src.ProductName))
-            .ForMember(dest => dest.Description,
-                opt => opt.MapFrom(src => src.Description))
-            .ForMember(dest => dest.Price,
-                opt => opt.MapFrom(src => src.Price))
-            .ForMember(dest => dest.StockQuantity,
-                opt => opt.MapFrom(src => src.StockQuantity));
+            .ConstructUsing((src, ctx) => new ProductDto(
+                Id: src.Id,
+                ProductName: src.ProductName,
+                Description: src.Description,
+                Price: src.Price,
+                StockQuantity: src.StockQuantity,
+                CategoryId: src.CategoryId,
+                CategoryName: src.Category?.CategoryName ?? string.Empty,
+                ImagePath: src.ImagePath,
+                Base64Image: src.Base64Image,
+                CreatedDate: src.CreatedDate
+            ));
 
-        CreateMap<CreateProductCommand, Product>();
-        CreateMap<UpdateProductCommand, Product>();
+        CreateMap<CreateProductCommand, Product>()
+            .ForMember(dest => dest.ImagePath, 
+                opt => opt.Ignore())
+            .ForMember(dest => dest.Base64Image, 
+                opt => opt.MapFrom(src => src.Base64Image));
+
+        CreateMap<UpdateProductCommand, Product>()
+            .ForMember(dest => dest.ImagePath, 
+                opt => opt.Ignore())
+            .ForMember(dest => dest.Base64Image, 
+                opt => opt.MapFrom(src => src.Base64Image));
 
         // Category mappings
         CreateMap<CreateCategoryCommand, Category>();
@@ -47,7 +56,6 @@ public sealed class MappingProfile : Profile
             .ForMember(dest => dest.ProductName,
                 opt => opt.MapFrom(src => src.Product.ProductName));
         CreateMap<UpdateOrderCommand, Order>().ReverseMap();
-
     }
 }
 

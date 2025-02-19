@@ -1,6 +1,4 @@
-﻿
-
-using AU_Framework.Domain.Abstract;
+﻿using AU_Framework.Domain.Abstract;
 
 namespace AU_Framework.Domain.Entities;
 
@@ -11,6 +9,8 @@ public sealed class Product : BaseEntity
     public decimal Price { get; set; }
     public int StockQuantity { get; set; }
     public Guid CategoryId { get; set; }
+    public string? ImagePath { get; set; }
+    public string? Base64Image { get; set; }
 
     public Category Category { get; set; }
     public ICollection<OrderDetail> OrderDetails { get; set; }

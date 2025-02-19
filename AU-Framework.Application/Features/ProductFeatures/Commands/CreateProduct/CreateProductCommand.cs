@@ -8,5 +8,6 @@ public sealed record CreateProductCommand(
     string Description,
     decimal Price,
     int StockQuantity,
-    Guid CategoryId
+    Guid CategoryId,
+    string? Base64Image
 ) : IRequest<MessageResponse>; 
