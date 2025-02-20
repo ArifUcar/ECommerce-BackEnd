@@ -9,5 +9,19 @@ public sealed record CreateProductCommand(
     decimal Price,
     int StockQuantity,
     Guid CategoryId,
-    string? Base64Image
+    string? Base64Image,
+    // ProductDetail özellikleri
+    string? Color,
+    string? Size,
+    string? Material,
+    string? Brand,
+    string? Model,
+    string? Warranty,
+    string? Specifications,
+    string? AdditionalInformation,
+    decimal? Weight,
+    string? WeightUnit,
+    string? Dimensions,
+    int? StockCode,
+    string? Barcode
 ) : IRequest<MessageResponse>; 

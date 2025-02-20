@@ -14,6 +14,7 @@ public sealed class Product : BaseEntity
 
     public Category Category { get; set; }
     public ICollection<OrderDetail> OrderDetails { get; set; }
+    public ProductDetail ProductDetail { get; set; }
 }
 
 

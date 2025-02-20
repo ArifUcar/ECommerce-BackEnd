@@ -20,6 +20,7 @@ public sealed class AppDbContext : DbContext
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderStatus> OrderStatuses { get; set; }
     public DbSet<OrderDetail> OrderDetails { get; set; }
+    public DbSet<ProductDetail> ProductDetails { get; set; }
 
     // OnModelCreating, model yapılandırmalarını uygulamak için kullanılır.
     // Burada, yapılandırmalar AssemblyReferance sınıfından alınan derlemeye göre uygulanır.
@@ -34,6 +35,7 @@ public sealed class AppDbContext : DbContext
         modelBuilder.ApplyConfiguration(new OrderConfiguration());
         modelBuilder.ApplyConfiguration(new OrderStatusConfiguration());
         modelBuilder.ApplyConfiguration(new OrderDetailConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductDetailConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

@@ -62,6 +62,7 @@ public sealed class ProductService : IProductService
                 }
             }
 
+            // ProductDetail'i otomatik olarak oluşturulacak
             await _productRepository.AddAsync(product, cancellationToken);
         }
         catch (Exception ex)
@@ -128,7 +129,8 @@ public sealed class ProductService : IProductService
         {
             var product = await _productRepository.GetFirstWithIncludeAsync(
                 x => x.Id == id && !x.IsDeleted,
-                query => query.Include(p => p.Category),
+                query => query.Include(p => p.Category)
+                             .Include(p => p.ProductDetail),
                 cancellationToken);
 
             if (product is null)
@@ -169,6 +171,7 @@ public sealed class ProductService : IProductService
         {
             var query = await _productRepository.GetAllWithIncludeAsync(
                 query => query.Include(p => p.Category)
+                             .Include(p => p.ProductDetail)
                              .Where(p => !p.IsDeleted),
                 cancellationToken);
 
@@ -222,6 +225,7 @@ public sealed class ProductService : IProductService
         {
             var query = await _productRepository.GetAllWithIncludeAsync(
                 query => query.Include(p => p.Category)
+                             .Include(p => p.ProductDetail)
                              .Where(p => p.CategoryId == categoryId && !p.IsDeleted),
                 cancellationToken);
 

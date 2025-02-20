@@ -20,29 +20,7 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
             .HasMaxLength(200);
 
         // Seed data
-        builder.HasData(
-            new Role 
-            { 
-                Id = Guid.NewGuid(), 
-                Name = "Admin", 
-                Description = "Sistem Yöneticisi",
-                CreatedDate = DateTime.UtcNow
-            },
-            new Role 
-            { 
-                Id = Guid.NewGuid(), 
-                Name = "Manager", 
-                Description = "Yönetici",
-                CreatedDate = DateTime.UtcNow
-            },
-            new Role 
-            { 
-                Id = Guid.NewGuid(), 
-                Name = "User", 
-                Description = "Kullanıcı",
-                CreatedDate = DateTime.UtcNow
-            }
-        );
+   
 
         // Table name
         builder.ToTable("Roles");
