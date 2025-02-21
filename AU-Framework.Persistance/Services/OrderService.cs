@@ -14,6 +14,7 @@ public sealed class OrderService : IOrderService
 {
     private readonly IRepository<Order> _orderRepository;
     private readonly IRepository<Product> _productRepository;
+    private readonly IProductStockService _productStockService;
     private readonly IMapper _mapper;
     private readonly ILogService _logger;
     private readonly ICurrentUser _currentUser;
@@ -21,15 +22,66 @@ public sealed class OrderService : IOrderService
     public OrderService(
         IRepository<Order> orderRepository,
         IRepository<Product> productRepository,
+        IProductStockService productStockService,
         IMapper mapper,
         ILogService logger,
         ICurrentUser currentUser)
     {
         _orderRepository = orderRepository;
         _productRepository = productRepository;
+        _productStockService = productStockService;
         _mapper = mapper;
         _logger = logger;
         _currentUser = currentUser;
+    }
+
+    public async Task CancelOrderAsync(Guid orderId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var order = await _orderRepository.GetFirstWithIncludeAsync(
+                x => x.Id == orderId && !x.IsDeleted,
+                query => query
+                    .Include(o => o.OrderDetails)
+                    .Include(o => o.OrderStatus),
+                cancellationToken);
+
+            if (order == null)
+                throw new Exception("Sipariş bulunamadı!");
+
+            // İptal edilmiş veya tamamlanmış siparişler iptal edilemez
+            if (order.OrderStatus.Name == "İptal Edildi")
+                throw new Exception("Bu sipariş zaten iptal edilmiş!");
+
+            if (order.OrderStatus.Name == "Tamamlandı")
+                throw new Exception("Tamamlanmış sipariş iptal edilemez!");
+
+            // Stokları geri yükle
+            foreach (var detail in order.OrderDetails)
+            {
+                var product = await _productRepository.GetFirstAsync(
+                    x => x.Id == detail.ProductId && !x.IsDeleted,
+                    cancellationToken);
+
+                if (product != null)
+                {
+                    product.StockQuantity += detail.Quantity;
+                    await _productRepository.UpdateAsync(product, cancellationToken);
+                    await _logger.LogInfo($"Stock restored for product {product.ProductName}. New stock: {product.StockQuantity}");
+                }
+            }
+
+            // Sipariş durumunu güncelle
+            order.OrderStatusId = new Guid("df7579ee-4af9-4b71-9ada-7f792f76921d"); // İptal Edildi status ID'si
+            await _orderRepository.UpdateAsync(order, cancellationToken);
+            
+            await _logger.LogInfo($"Order cancelled and stocks restored. OrderId: {orderId}");
+        }
+        catch (Exception ex)
+        {
+            await _logger.LogError(ex, $"Error cancelling order: {orderId}");
+            throw;
+        }
     }
 
     public async Task CreateAsync(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -38,6 +90,18 @@ public sealed class OrderService : IOrderService
         {
             if (!_currentUser.IsAuthenticated)
                 throw new UnauthorizedAccessException("Kullanıcı giriş yapmamış!");
+
+            // Ürünlerin stok kontrolü
+            foreach (var detail in request.OrderDetails)
+            {
+                var isAvailable = await _productStockService.CheckStockAvailability(
+                    detail.ProductId, 
+                    detail.Quantity, 
+                    cancellationToken);
+
+                if (!isAvailable)
+                    throw new Exception($"Yetersiz stok. Ürün ID: {detail.ProductId}");
+            }
 
             var order = new Order
             {
@@ -48,15 +112,17 @@ public sealed class OrderService : IOrderService
                 OrderDetails = new List<OrderDetail>()
             };
 
-            // Her bir ürün için detay oluştur
+            // Siparişi oluştur ve stokları güncelle
             foreach (var detail in request.OrderDetails)
             {
+                await _productStockService.UpdateStock(
+                    detail.ProductId, 
+                    detail.Quantity, 
+                    cancellationToken);
+
                 var product = await _productRepository.GetFirstAsync(
                     x => x.Id == detail.ProductId && !x.IsDeleted, 
                     cancellationToken);
-
-                if (product == null)
-                    throw new Exception($"Ürün bulunamadı: {detail.ProductId}");
 
                 order.OrderDetails.Add(new OrderDetail
                 {

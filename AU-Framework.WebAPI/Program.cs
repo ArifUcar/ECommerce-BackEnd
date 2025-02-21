@@ -16,6 +16,8 @@ using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using System.Security.Claims;
 using AU_Framework.WebAPI.Filters;
+using AU.Framework.Persistance.Services;
+using AU_Framework.Application.Features.OrderFeatures.Commands.CancelOrder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +35,11 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+// ProductStockService kaydı
+builder.Services.AddScoped<IProductStockService, ProductStockService>();
 
+// Validator kaydı
+builder.Services.AddScoped<IValidator<CancelOrderCommand>, CancelOrderCommandValidator>();
 // Repository servisini kaydediyoruz
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
