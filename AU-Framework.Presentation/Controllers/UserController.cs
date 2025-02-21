@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using AU_Framework.Application.Features.UserFeatures.Queries.GetUserCount;
+using AU_Framework.Application.Features.UserFeatures.Queries.GetAllUsers;
 
 namespace AU_Framework.Presentation.Controllers
 {
@@ -15,6 +16,13 @@ namespace AU_Framework.Presentation.Controllers
         public UserController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        {
+            var users = await _mediator.Send(new GetAllUsersQuery(), cancellationToken);
+            return Ok(users);
         }
 
         [HttpGet("count")]
