@@ -18,6 +18,7 @@ using System.Security.Claims;
 using AU_Framework.WebAPI.Filters;
 using AU.Framework.Persistance.Services;
 using AU_Framework.Application.Features.OrderFeatures.Commands.CancelOrder;
+using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrderStatus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IValidator<UpdateOrderStatusCommand>, UpdateOrderStatusCommandValidator>();
 // ProductStockService kaydı
 builder.Services.AddScoped<IProductStockService, ProductStockService>();
 

@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using AU_Framework.Application.Features.OrderFeatures.Commands.DeleteOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrder;
+using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrderStatus;
 
 namespace AU_Framework.Persistance.Services;
 
@@ -328,6 +329,39 @@ public sealed class OrderService : IOrderService
         catch (Exception ex)
         {
             await _logger.LogError(ex, "Error calculating total revenue");
+            throw;
+        }
+    }
+
+    public async Task UpdateOrderStatusAsync(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var order = await _orderRepository.GetFirstWithIncludeAsync(
+                x => x.Id == request.OrderId && !x.IsDeleted,
+                query => query
+                    .Include(o => o.OrderStatus),
+                cancellationToken);
+
+            if (order == null)
+                throw new Exception("Sipariş bulunamadı!");
+
+            // Tamamlanmış siparişlerin durumu değiştirilemez
+            if (order.OrderStatus.Name == "Tamamlandı")
+                throw new Exception("Tamamlanmış siparişin durumu değiştirilemez!");
+
+            // İptal edilmiş siparişlerin durumu değiştirilemez
+            if (order.OrderStatus.Name == "İptal Edildi")
+                throw new Exception("İptal edilmiş siparişin durumu değiştirilemez!");
+
+            order.OrderStatusId = request.OrderStatusId;
+            await _orderRepository.UpdateAsync(order, cancellationToken);
+            
+            await _logger.LogInfo($"Order status updated. OrderId: {request.OrderId}, New StatusId: {request.OrderStatusId}");
+        }
+        catch (Exception ex)
+        {
+            await _logger.LogError(ex, $"Error updating order status. OrderId: {request.OrderId}");
             throw;
         }
     }

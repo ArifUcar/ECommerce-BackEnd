@@ -3,6 +3,7 @@ using AU_Framework.Domain.Entities;
 using AU_Framework.Domain.Dtos;
 using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.DeleteOrder;
+using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrderStatus;
 
 namespace AU_Framework.Application.Services;
 
@@ -17,4 +18,5 @@ public interface IOrderService
     Task CancelOrderAsync(Guid orderId, CancellationToken cancellationToken);
     Task<int> GetOrderCountAsync(CancellationToken cancellationToken);
     Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken);
+    Task UpdateOrderStatusAsync(UpdateOrderStatusCommand request, CancellationToken cancellationToken);
 } 

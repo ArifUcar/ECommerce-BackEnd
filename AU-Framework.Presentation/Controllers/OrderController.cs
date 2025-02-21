@@ -2,6 +2,7 @@ using AU_Framework.Application.Features.OrderFeatures.Commands.CancelOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.CreateOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.DeleteOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrder;
+using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrderStatus;
 using AU_Framework.Application.Features.OrderFeatures.Queries.GetAllOrders;
 using AU_Framework.Application.Features.OrderFeatures.Queries.GetUserOrders;
 using AU_Framework.Application.Features.OrderFeatures.Queries.GetOrderCount;
@@ -81,5 +82,17 @@ public sealed class OrderController : ControllerBase
     {
         var revenue = await _mediator.Send(new GetTotalRevenueQuery(), cancellationToken);
         return Ok(new { TotalRevenue = revenue });
+    }
+
+    [HttpPut("{id}/status")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateStatus(
+        [FromRoute] Guid id,
+        [FromBody] Guid orderStatusId,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateOrderStatusCommand(id, orderStatusId);
+        var response = await _mediator.Send(command, cancellationToken);
+        return Ok(response);
     }
 } 
