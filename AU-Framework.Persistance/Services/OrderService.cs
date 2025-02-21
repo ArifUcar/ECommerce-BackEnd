@@ -298,4 +298,18 @@ public sealed class OrderService : IOrderService
             throw;
         }
     }
+
+    public async Task<int> GetOrderCountAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = await _orderRepository.GetAllAsync(cancellationToken);
+            return await query.Where(o => !o.IsDeleted).CountAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await _logger.LogError(ex, "Error getting order count");
+            throw;
+        }
+    }
 } 
