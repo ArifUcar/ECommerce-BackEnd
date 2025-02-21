@@ -35,6 +35,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<IUserService, UserService>();
 // ProductStockService kaydı
 builder.Services.AddScoped<IProductStockService, ProductStockService>();
 
