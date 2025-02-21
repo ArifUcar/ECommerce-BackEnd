@@ -3,6 +3,7 @@ using AU_Framework.Application.Features.OrderFeatures.Commands.CreateOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.DeleteOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrder;
 using AU_Framework.Application.Features.OrderFeatures.Queries.GetAllOrders;
+using AU_Framework.Application.Features.OrderFeatures.Queries.GetUserOrders;
 using AU_Framework.Domain.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -36,7 +37,12 @@ public sealed class OrderController : ControllerBase
         return Ok(response);
     }
 
-   
+    [HttpGet("my-orders")]
+    public async Task<IActionResult> GetUserOrders(CancellationToken cancellationToken)
+    {
+        var response = await _mediator.Send(new GetUserOrdersQuery(), cancellationToken);
+        return Ok(response);
+    }
 
     [HttpPut]
     public async Task<IActionResult> Update(UpdateOrderCommand request, CancellationToken cancellationToken)

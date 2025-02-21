@@ -10,6 +10,7 @@ public interface IOrderService
 {
     Task CreateAsync(CreateOrderCommand request, CancellationToken cancellationToken);
     Task<List<OrderDto>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<OrderDto>> GetUserOrdersAsync(CancellationToken cancellationToken);
     Task<OrderDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     Task UpdateAsync(UpdateOrderCommand request, CancellationToken cancellationToken);
     Task DeleteAsync(DeleteOrderCommand request, CancellationToken cancellationToken);

@@ -252,4 +252,50 @@ public sealed class OrderService : IOrderService
             throw new Exception("Sipariş silme işlemi sırasında bir hata oluştu!");
         }
     }
+
+    public async Task<List<OrderDto>> GetUserOrdersAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (!_currentUser.IsAuthenticated)
+                throw new UnauthorizedAccessException("Kullanıcı giriş yapmamış!");
+
+            var orders = await _orderRepository.GetAllWithIncludeAsync(
+                query => query
+                    .Include(o => o.User)
+                    .Include(o => o.OrderStatus)
+                    .Include(o => o.OrderDetails)
+                    .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                    .Where(o => o.UserId == _currentUser.UserId && !o.IsDeleted)
+                    .OrderByDescending(o => o.OrderDate)
+                    .AsNoTracking(),
+                cancellationToken);
+
+            if (orders == null || !orders.Any())
+                return new List<OrderDto>();
+
+            var orderDtos = orders.Select(order => new OrderDto(
+                order.Id,
+                order.UserId,
+                $"{order.User.FirstName} {order.User.LastName}",
+                order.OrderDate,
+                order.TotalAmount,
+                order.OrderStatus.Name,
+                order.OrderDetails.Select(detail => new OrderDetailDto(
+                    detail.Id,
+                    detail.ProductId,
+                    detail.Product != null ? detail.Product.ProductName : string.Empty,
+                    detail.Quantity,
+                    detail.UnitPrice
+                )).ToList()
+            )).ToList();
+
+            return orderDtos;
+        }
+        catch (Exception ex)
+        {
+            await _logger.LogError(ex, $"Error getting orders for user: {_currentUser.UserId}");
+            throw;
+        }
+    }
 } 
