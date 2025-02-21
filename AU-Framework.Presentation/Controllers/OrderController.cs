@@ -5,6 +5,7 @@ using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrder;
 using AU_Framework.Application.Features.OrderFeatures.Queries.GetAllOrders;
 using AU_Framework.Application.Features.OrderFeatures.Queries.GetUserOrders;
 using AU_Framework.Application.Features.OrderFeatures.Queries.GetOrderCount;
+using AU_Framework.Application.Features.OrderFeatures.Queries.GetTotalRevenue;
 using AU_Framework.Domain.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -72,5 +73,13 @@ public sealed class OrderController : ControllerBase
     {
         var count = await _mediator.Send(new GetOrderCountQuery(), cancellationToken);
         return Ok(new { TotalOrders = count });
+    }
+
+    [HttpGet("total-revenue")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetTotalRevenue(CancellationToken cancellationToken)
+    {
+        var revenue = await _mediator.Send(new GetTotalRevenueQuery(), cancellationToken);
+        return Ok(new { TotalRevenue = revenue });
     }
 } 

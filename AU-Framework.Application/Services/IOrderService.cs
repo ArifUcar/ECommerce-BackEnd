@@ -16,4 +16,5 @@ public interface IOrderService
     Task DeleteAsync(DeleteOrderCommand request, CancellationToken cancellationToken);
     Task CancelOrderAsync(Guid orderId, CancellationToken cancellationToken);
     Task<int> GetOrderCountAsync(CancellationToken cancellationToken);
+    Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken);
 } 

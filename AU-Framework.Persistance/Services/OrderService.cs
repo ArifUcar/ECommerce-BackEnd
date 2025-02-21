@@ -312,4 +312,23 @@ public sealed class OrderService : IOrderService
             throw;
         }
     }
+
+    public async Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = await _orderRepository.GetAllWithIncludeAsync(
+                include => include
+                    .Include(o => o.OrderStatus)
+                    .Where(o => !o.IsDeleted && o.OrderStatus.Name != "İptal Edildi"),
+                cancellationToken);
+
+            return await query.SumAsync(o => o.TotalAmount, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await _logger.LogError(ex, "Error calculating total revenue");
+            throw;
+        }
+    }
 } 
