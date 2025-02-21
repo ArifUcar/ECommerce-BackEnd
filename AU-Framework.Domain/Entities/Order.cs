@@ -7,6 +7,7 @@ public sealed class Order : BaseEntity
     public Guid UserId { get; set; }
     public DateTime OrderDate { get; set; }
     public decimal TotalAmount { get; set; }
+    public string ProductName { get; set; }
     public Guid OrderStatusId { get; set; }  // Lookup table reference
 
     public User User { get; set; }

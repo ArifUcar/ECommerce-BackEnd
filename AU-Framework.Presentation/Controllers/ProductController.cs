@@ -4,10 +4,12 @@ using AU_Framework.Application.Features.ProductFeatures.Commands.UpdateProduct;
 using AU_Framework.Application.Features.ProductFeatures.Queries.GetAllProducts;
 using AU_Framework.Application.Features.ProductFeatures.Queries.GetProductById;
 using AU_Framework.Application.Features.ProductFeatures.Queries.GetProductsByCategoryId;
+using AU_Framework.Application.Features.ProductFeatures.Queries.GetDiscountedProducts;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using AU_Framework.Application.Features.ProductFeatures.Queries.GetProductsByCategory;
 
 namespace AU_Framework.Presentation.Controllers;
 
@@ -23,19 +25,19 @@ public sealed class ProductController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("[action]")]
-    [AllowAnonymous]
+    [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new GetAllProductsQuery(), cancellationToken);
+        var query = new GetAllProductsQuery();
+        var response = await _mediator.Send(query, cancellationToken);
         return Ok(response);
     }
 
-    [HttpGet("[action]/{id}")]
-    [AllowAnonymous] // Bu endpoint için yetkilendirme gerekmez
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new GetProductByIdQuery(id), cancellationToken);
+        var query = new GetProductByIdQuery(id);
+        var response = await _mediator.Send(query, cancellationToken);
         return Ok(response);
     }
 
@@ -66,7 +68,16 @@ public sealed class ProductController : ControllerBase
     [HttpGet("[action]/{categoryId}")]
     public async Task<IActionResult> GetByCategory(Guid categoryId, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new GetProductsByCategoryIdQuery(categoryId), cancellationToken);
+        var query = new GetProductsByCategoryQuery(categoryId);
+        var response = await _mediator.Send(query, cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpGet("[action]")]
+    public async Task<IActionResult> GetDiscountedProducts(CancellationToken cancellationToken)
+    {
+        var query = new GetDiscountedProductsQuery();
+        var response = await _mediator.Send(query, cancellationToken);
         return Ok(response);
     }
 } 

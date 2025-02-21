@@ -12,6 +12,10 @@ namespace AU_Framework.Persistance.Configurations
 
             builder.HasKey(od => od.Id);
 
+            builder.Property(od => od.ProductName)
+                .IsRequired()
+                .HasMaxLength(150);
+
             builder.Property(od => od.Quantity)
                 .IsRequired();
 
@@ -32,6 +36,17 @@ namespace AU_Framework.Persistance.Configurations
                 .WithMany(p => p.OrderDetails)
                 .HasForeignKey(od => od.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Audit properties
+            builder.Property(x => x.CreatedDate)
+                .IsRequired();
+
+            builder.Property(x => x.UpdatedDate)
+                .IsRequired();
+
+            builder.Property(x => x.IsDeleted)
+                .IsRequired()
+                .HasDefaultValue(false);
         }
     }
 }

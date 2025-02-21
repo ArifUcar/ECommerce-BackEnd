@@ -5,4 +5,4 @@ namespace AU_Framework.Application.Features.ProductFeatures.Queries.GetProductBy
 
 public sealed record GetProductByIdQuery(
     Guid Id
-) : IRequest<ProductDto>; 
+) : IRequest<ProductDto>;

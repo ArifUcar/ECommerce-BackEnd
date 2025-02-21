@@ -6,8 +6,7 @@ public sealed class CreateOrderCommandValidator : AbstractValidator<CreateOrderC
 {
     public CreateOrderCommandValidator()
     {
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("Kullanıcı ID boş olamaz");
+        
 
         RuleFor(x => x.OrderStatusId)
             .NotEmpty().WithMessage("Sipariş durumu boş olamaz");

@@ -17,4 +17,4 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
     {
         return await _productService.GetByIdAsync(request.Id, cancellationToken);
     }
-} 
+}

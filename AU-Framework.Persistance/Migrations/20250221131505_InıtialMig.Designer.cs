@@ -4,6 +4,7 @@ using AU_Framework.Persistance.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AU_Framework.Persistance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250221131505_InıtialMig")]
+    partial class InıtialMig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -241,9 +244,7 @@ namespace AU_Framework.Persistance.Migrations
                         .HasDefaultValue(true);
 
                     b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -251,77 +252,11 @@ namespace AU_Framework.Persistance.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .IsRequired()
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.ToTable("OrderStatuses", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("8f7579ee-4af9-4b71-9ada-7f792f76921e"),
-                            CreatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3670),
-                            DisplayOrder = 1,
-                            IsActive = true,
-                            IsDeleted = false,
-                            Name = "Beklemede",
-                            UpdatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3671)
-                        },
-                        new
-                        {
-                            Id = new Guid("9f7579ee-4af9-4b71-9ada-7f792f76921f"),
-                            CreatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3675),
-                            DisplayOrder = 2,
-                            IsActive = true,
-                            IsDeleted = false,
-                            Name = "Onaylandı",
-                            UpdatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3675)
-                        },
-                        new
-                        {
-                            Id = new Guid("af7579ee-4af9-4b71-9ada-7f792f76921a"),
-                            CreatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3688),
-                            DisplayOrder = 3,
-                            IsActive = true,
-                            IsDeleted = false,
-                            Name = "Hazırlanıyor",
-                            UpdatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3688)
-                        },
-                        new
-                        {
-                            Id = new Guid("bf7579ee-4af9-4b71-9ada-7f792f76921b"),
-                            CreatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3691),
-                            DisplayOrder = 4,
-                            IsActive = true,
-                            IsDeleted = false,
-                            Name = "Kargoya Verildi",
-                            UpdatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3691)
-                        },
-                        new
-                        {
-                            Id = new Guid("cf7579ee-4af9-4b71-9ada-7f792f76921c"),
-                            CreatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3693),
-                            DisplayOrder = 5,
-                            IsActive = true,
-                            IsDeleted = false,
-                            Name = "Tamamlandı",
-                            UpdatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3694)
-                        },
-                        new
-                        {
-                            Id = new Guid("df7579ee-4af9-4b71-9ada-7f792f76921d"),
-                            CreatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3696),
-                            DisplayOrder = 6,
-                            IsActive = true,
-                            IsDeleted = false,
-                            Name = "İptal Edildi",
-                            UpdatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 985, DateTimeKind.Utc).AddTicks(3696)
-                        });
                 });
 
             modelBuilder.Entity("AU_Framework.Domain.Entities.Product", b =>
@@ -486,12 +421,11 @@ namespace AU_Framework.Persistance.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -499,30 +433,11 @@ namespace AU_Framework.Persistance.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .IsRequired()
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("Roles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("8f7579ee-4af9-4b71-9ada-7f792f76921c"),
-                            CreatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 983, DateTimeKind.Utc).AddTicks(7912),
-                            IsDeleted = false,
-                            Name = "Admin",
-                            UpdatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 983, DateTimeKind.Utc).AddTicks(7912)
-                        },
-                        new
-                        {
-                            Id = new Guid("9f7579ee-4af9-4b71-9ada-7f792f76921d"),
-                            CreatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 983, DateTimeKind.Utc).AddTicks(7918),
-                            IsDeleted = false,
-                            Name = "User",
-                            UpdatedDate = new DateTime(2025, 2, 21, 13, 24, 18, 983, DateTimeKind.Utc).AddTicks(7918)
-                        });
                 });
 
             modelBuilder.Entity("AU_Framework.Domain.Entities.User", b =>

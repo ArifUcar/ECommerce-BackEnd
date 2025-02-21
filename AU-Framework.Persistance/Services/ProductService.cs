@@ -81,7 +81,7 @@ public sealed class ProductService : IProductService
         if (product.IsDeleted)
             throw new Exception("Bu ürün artık aktif değil!");
 
-        // Kategori kontrolü - CategoryId artık Guid
+        // Kategori kontrolü
         var category = await _categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken);
         if (category == null)
             throw new Exception("Kategori bulunamadı!");
@@ -93,8 +93,12 @@ public sealed class ProductService : IProductService
         product.ProductName = request.ProductName;
         product.Description = request.Description;
         product.Price = request.Price;
+        product.DiscountedPrice = request.DiscountedPrice;
+        product.DiscountRate = request.DiscountRate;
+        product.DiscountStartDate = request.DiscountStartDate;
+        product.DiscountEndDate = request.DiscountEndDate;
         product.StockQuantity = request.StockQuantity;
-        product.CategoryId = request.CategoryId;  // Artık parse etmeye gerek yok
+        product.CategoryId = request.CategoryId;
         product.UpdatedDate = DateTime.Now;
 
         if (!string.IsNullOrEmpty(request.Base64Image))

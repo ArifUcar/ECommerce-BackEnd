@@ -20,6 +20,11 @@ public sealed class MappingProfile : Profile
                 src.ProductName,
                 src.Description,
                 src.Price,
+                src.DiscountedPrice,
+                src.DiscountRate,
+                src.DiscountStartDate,
+                src.DiscountEndDate,
+                src.IsDiscounted,
                 src.StockQuantity,
                 src.CategoryId,
                 src.Category?.CategoryName ?? string.Empty,
@@ -50,24 +55,11 @@ public sealed class MappingProfile : Profile
         CreateMap<CreateProductCommand, Product>()
             .ForMember(dest => dest.ImagePath, opt => opt.Ignore())
             .ForMember(dest => dest.Base64Image, opt => opt.MapFrom(src => src.Base64Image))
-            .AfterMap((src, dest) => {
-                dest.ProductDetail = new ProductDetail
-                {
-                    Color = src.Color,
-                    Size = src.Size,
-                    Material = src.Material,
-                    Brand = src.Brand,
-                    Model = src.Model,
-                    Warranty = src.Warranty,
-                    Specifications = src.Specifications,
-                    AdditionalInformation = src.AdditionalInformation,
-                    Weight = src.Weight,
-                    WeightUnit = src.WeightUnit,
-                    Dimensions = src.Dimensions,
-                    StockCode = src.StockCode,
-                    Barcode = src.Barcode
-                };
-            });
+            .ForMember(dest => dest.DiscountedPrice, opt => opt.MapFrom(src => src.DiscountedPrice))
+            .ForMember(dest => dest.DiscountRate, opt => opt.MapFrom(src => src.DiscountRate))
+            .ForMember(dest => dest.DiscountStartDate, opt => opt.MapFrom(src => src.DiscountStartDate))
+            .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.DiscountEndDate))
+            .ForMember(dest => dest.ProductDetail, opt => opt.MapFrom(src => src.ProductDetail));
 
         CreateMap<UpdateProductCommand, Product>()
             .ForMember(dest => dest.ImagePath, opt => opt.Ignore())
@@ -93,6 +85,8 @@ public sealed class MappingProfile : Profile
                 dest.ProductDetail.Barcode = src.Barcode;
             });
 
+        CreateMap<ProductDetailDto, ProductDetail>();
+
         // Category mappings
         CreateMap<CreateCategoryCommand, Category>();
         CreateMap<Category, CategoryDto>();
@@ -103,11 +97,21 @@ public sealed class MappingProfile : Profile
             .ForMember(dest => dest.UserFullName,
                 opt => opt.MapFrom(src => $"{src.User.FirstName} {src.User.LastName}"))
             .ForMember(dest => dest.OrderStatus,
-                opt => opt.MapFrom(src => src.OrderStatus.Name));
+                opt => opt.MapFrom(src => src.OrderStatus.Name))
+            .ForMember(dest => dest.OrderDetails,
+                opt => opt.MapFrom(src => src.OrderDetails));
 
+        // OrderDetail mappings
         CreateMap<OrderDetail, OrderDetailDto>()
             .ForMember(dest => dest.ProductName,
-                opt => opt.MapFrom(src => src.Product.ProductName));
+                opt => opt.MapFrom(src => src.Product != null ? src.Product.ProductName : string.Empty))
+            .ForMember(dest => dest.ProductId,
+                opt => opt.MapFrom(src => src.ProductId))
+            .ForMember(dest => dest.Quantity,
+                opt => opt.MapFrom(src => src.Quantity))
+            .ForMember(dest => dest.UnitPrice,
+                opt => opt.MapFrom(src => src.UnitPrice));
+
         CreateMap<UpdateOrderCommand, Order>().ReverseMap();
     }
 }

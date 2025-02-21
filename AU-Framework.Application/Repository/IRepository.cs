@@ -1,10 +1,12 @@
 #nullable enable
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace AU_Framework.Application.Repository
 {
     public interface IRepository<T> where T : class
     {
+        DbContext Context { get; }
         // Tekil kayıt getirme işlemleri
         Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);

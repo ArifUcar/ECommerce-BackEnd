@@ -4,7 +4,7 @@ using MediatR;
 
 namespace AU_Framework.Application.Features.ProductFeatures.Queries.GetAllProducts;
 
-public sealed class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, IList<ProductDto>>
+public sealed class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, List<ProductDto>>
 {
     private readonly IProductService _productService;
 
@@ -13,8 +13,9 @@ public sealed class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQ
         _productService = productService;
     }
 
-    public async Task<IList<ProductDto>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
+    public async Task<List<ProductDto>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
     {
-        return await _productService.GetAllAsync(cancellationToken);
+        var products = await _productService.GetAllAsync(cancellationToken);
+        return products.ToList();
     }
-} 
+}

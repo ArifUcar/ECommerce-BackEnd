@@ -22,6 +22,8 @@ namespace AU_Framework.Persistance.Repository
             _dbSet = context.Set<T>();
         }
 
+        public DbContext Context => _context;
+
         public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             if (id == Guid.Empty)

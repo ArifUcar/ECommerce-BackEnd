@@ -13,46 +13,67 @@ namespace AU_Framework.Persistance.Services;
 public sealed class OrderService : IOrderService
 {
     private readonly IRepository<Order> _orderRepository;
-    private readonly IRepository<OrderDetail> _orderDetailRepository;
+    private readonly IRepository<Product> _productRepository;
     private readonly IMapper _mapper;
     private readonly ILogService _logger;
+    private readonly ICurrentUser _currentUser;
 
     public OrderService(
         IRepository<Order> orderRepository,
-        IRepository<OrderDetail> orderDetailRepository,
+        IRepository<Product> productRepository,
         IMapper mapper,
-        ILogService logger)
+        ILogService logger,
+        ICurrentUser currentUser)
     {
         _orderRepository = orderRepository;
-        _orderDetailRepository = orderDetailRepository;
+        _productRepository = productRepository;
         _mapper = mapper;
         _logger = logger;
+        _currentUser = currentUser;
     }
 
     public async Task CreateAsync(CreateOrderCommand request, CancellationToken cancellationToken)
     {
         try
         {
+            if (!_currentUser.IsAuthenticated)
+                throw new UnauthorizedAccessException("Kullanıcı giriş yapmamış!");
+
             var order = new Order
             {
-                UserId = request.UserId,
+                UserId = _currentUser.UserId,
                 OrderStatusId = request.OrderStatusId,
                 TotalAmount = request.TotalAmount,
                 OrderDate = DateTime.UtcNow,
-                OrderDetails = request.OrderDetails.Select(detail => new OrderDetail
+                OrderDetails = new List<OrderDetail>()
+            };
+
+            // Her bir ürün için detay oluştur
+            foreach (var detail in request.OrderDetails)
+            {
+                var product = await _productRepository.GetFirstAsync(
+                    x => x.Id == detail.ProductId && !x.IsDeleted, 
+                    cancellationToken);
+
+                if (product == null)
+                    throw new Exception($"Ürün bulunamadı: {detail.ProductId}");
+
+                order.OrderDetails.Add(new OrderDetail
                 {
                     ProductId = detail.ProductId,
+                    ProductName = product.ProductName,
                     Quantity = detail.Quantity,
-                    UnitPrice = detail.UnitPrice
-                }).ToList()
-            };
+                    UnitPrice = detail.UnitPrice,
+                    SubTotal = detail.Quantity * detail.UnitPrice
+                });
+            }
             
             await _orderRepository.AddAsync(order, cancellationToken);
-            await _logger.LogInfo($"Order created for user: {request.UserId}");
+            await _logger.LogInfo($"Order created for user: {_currentUser.UserId}");
         }
         catch (Exception ex)
         {
-            await _logger.LogError(ex, $"Error creating order for user: {request.UserId}");
+            await _logger.LogError(ex, $"Error creating order for user: {_currentUser.UserId}");
             throw;
         }
     }
@@ -66,10 +87,31 @@ public sealed class OrderService : IOrderService
                     .Include(o => o.User)
                     .Include(o => o.OrderStatus)
                     .Include(o => o.OrderDetails)
-                        .ThenInclude(od => od.Product),
+                    .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                    .Where(o => !o.IsDeleted)
+                    .AsNoTracking(),
                 cancellationToken);
 
-            return _mapper.Map<List<OrderDto>>(orders);
+            if (orders == null || !orders.Any())
+                return new List<OrderDto>();
+
+            var orderDtos = orders.Select(order => new OrderDto(
+                order.Id,
+                order.UserId,
+                order.User != null ? $"{order.User.FirstName} {order.User.LastName}" : string.Empty,
+                order.OrderDate,
+                order.TotalAmount,
+                order.OrderStatus != null ? order.OrderStatus.Name : string.Empty,
+                order.OrderDetails.Select(detail => new OrderDetailDto(
+                    detail.Id,
+                    detail.ProductId,
+                    detail.Product != null ? detail.Product.ProductName : string.Empty,
+                    detail.Quantity,
+                    detail.UnitPrice
+                )).ToList()
+            )).ToList();
+
+            return orderDtos;
         }
         catch (Exception ex)
         {

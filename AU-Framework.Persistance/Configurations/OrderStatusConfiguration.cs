@@ -27,8 +27,84 @@ namespace AU_Framework.Persistance.Configurations
                 .IsRequired()
                 .HasDefaultValue(0);
 
-          
-        
+            // Varsayılan sipariş durumlarını ekle
+            builder.HasData(
+                new OrderStatus 
+                { 
+                    Id = new Guid("8f7579ee-4af9-4b71-9ada-7f792f76921e"),
+                    Name = "Beklemede",
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow,
+                    IsDeleted = false,
+                    IsActive = true,
+                    DisplayOrder = 1
+                },
+                new OrderStatus 
+                { 
+                    Id = new Guid("9f7579ee-4af9-4b71-9ada-7f792f76921f"),
+                    Name = "Onaylandı",
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow,
+                    IsDeleted = false,
+                    IsActive = true,
+                    DisplayOrder = 2
+                },
+                new OrderStatus 
+                { 
+                    Id = new Guid("af7579ee-4af9-4b71-9ada-7f792f76921a"),
+                    Name = "Hazırlanıyor",
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow,
+                    IsDeleted = false,
+                    IsActive = true,
+                    DisplayOrder = 3
+                },
+                new OrderStatus 
+                { 
+                    Id = new Guid("bf7579ee-4af9-4b71-9ada-7f792f76921b"),
+                    Name = "Kargoya Verildi",
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow,
+                    IsDeleted = false,
+                    IsActive = true,
+                    DisplayOrder = 4
+                },
+                new OrderStatus 
+                { 
+                    Id = new Guid("cf7579ee-4af9-4b71-9ada-7f792f76921c"),
+                    Name = "Tamamlandı",
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow,
+                    IsDeleted = false,
+                    IsActive = true,
+                    DisplayOrder = 5
+                },
+                new OrderStatus 
+                { 
+                    Id = new Guid("df7579ee-4af9-4b71-9ada-7f792f76921d"),
+                    Name = "İptal Edildi",
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow,
+                    IsDeleted = false,
+                    IsActive = true,
+                    DisplayOrder = 6
+                }
+            );
+
+            // Audit properties
+            builder.Property(x => x.CreatedDate)
+                .IsRequired();
+
+            builder.Property(x => x.UpdatedDate)
+                .IsRequired();
+
+            builder.Property(x => x.IsDeleted)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            // Index
+            builder.HasIndex(x => x.Name)
+                .IsUnique();
         }
     }
 }
