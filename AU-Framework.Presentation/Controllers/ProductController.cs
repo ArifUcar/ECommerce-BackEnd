@@ -10,12 +10,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using AU_Framework.Application.Features.ProductFeatures.Queries.GetProductsByCategory;
+using AU_Framework.Application.Features.ProductFeatures.Queries.GetStockSummary;
 
 namespace AU_Framework.Presentation.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [EnableCors("AllowAll")]  // CORS'u controller seviyesinde etkinleştir
+[Authorize]
 public sealed class ProductController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -79,5 +81,13 @@ public sealed class ProductController : ControllerBase
         var query = new GetDiscountedProductsQuery();
         var response = await _mediator.Send(query, cancellationToken);
         return Ok(response);
+    }
+
+    [HttpGet("stock-summary")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetStockSummary(CancellationToken cancellationToken)
+    {
+        var summary = await _mediator.Send(new GetStockSummaryQuery(), cancellationToken);
+        return Ok(summary);
     }
 } 

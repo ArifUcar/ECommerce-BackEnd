@@ -276,4 +276,31 @@ public sealed class ProductService : IProductService
             throw;
         }
     }
+
+    public async Task<ProductStockSummaryDto> GetStockSummaryAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var query = await _productRepository.GetAllAsync(cancellationToken);
+            var products = query.Where(p => !p.IsDeleted);
+
+            const int LOW_STOCK_THRESHOLD = 10;
+
+            var totalProducts = await products.CountAsync(cancellationToken);
+            var totalStock = await products.SumAsync(p => p.StockQuantity, cancellationToken);
+            var outOfStock = await products.CountAsync(p => p.StockQuantity == 0, cancellationToken);
+            var lowStock = await products.CountAsync(p => p.StockQuantity > 0 && p.StockQuantity <= LOW_STOCK_THRESHOLD, cancellationToken);
+
+            return new ProductStockSummaryDto(
+                TotalProducts: totalProducts,
+                TotalStockQuantity: totalStock,
+                OutOfStockProducts: outOfStock,
+                LowStockProducts: lowStock);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting stock summary");
+            throw;
+        }
+    }
 }

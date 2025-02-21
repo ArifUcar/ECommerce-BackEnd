@@ -19,5 +19,6 @@ namespace AU_Framework.Application.Services
         Task<ProductDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<IList<ProductDto>> GetAllAsync(CancellationToken cancellationToken);
         Task<IList<ProductDto>> GetByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken);
+        Task<ProductStockSummaryDto> GetStockSummaryAsync(CancellationToken cancellationToken);
     }
 }

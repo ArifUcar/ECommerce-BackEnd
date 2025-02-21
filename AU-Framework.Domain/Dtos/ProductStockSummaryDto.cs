@@ -4,4 +4,4 @@ public sealed record ProductStockSummaryDto(
     int TotalProducts,
     int TotalStockQuantity,
     int OutOfStockProducts,
-    int LowStockProducts); // Örneğin stok sayısı 10'un altında olanlar 
+    int LowStockProducts); // Örneğin stok sayısı 10'un altında olanlar

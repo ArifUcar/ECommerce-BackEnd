@@ -32,4 +32,4 @@ public sealed class GetStockSummaryQueryHandler : IRequestHandler<GetStockSummar
             OutOfStockProducts: outOfStock,
             LowStockProducts: lowStock);
     }
-} 
+}
