@@ -4,30 +4,66 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AU_Framework.Persistance.Configurations
 {
-    public class OrderConfiguration : IEntityTypeConfiguration<Order>
+    public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
             builder.ToTable("Orders");
 
-            builder.HasKey(o => o.Id);
+            builder.HasKey(x => x.Id);
 
-            builder.Property(o => o.OrderDate)
+            builder.Property(x => x.CustomerName)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Property(x => x.CustomerPhone)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            builder.Property(x => x.ShippingAddress)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            builder.Property(x => x.City)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            builder.Property(x => x.District)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            builder.Property(x => x.ZipCode)
+                .IsRequired()
+                .HasMaxLength(10);
+
+            builder.Property(x => x.TotalAmount)
+                .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
-            builder.Property(o => o.TotalAmount)
-                .IsRequired()
-                .HasColumnType("decimal(18,2)");
+            builder.Property(x => x.OrderDate)
+                .IsRequired();
 
-            builder.HasOne(o => o.User)
-                .WithMany(u => u.Orders)
-                .HasForeignKey(o => o.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(o => o.OrderStatus)
-                .WithMany(s => s.Orders)
-                .HasForeignKey(o => o.OrderStatusId)
+            // Navigation properties
+            builder.HasOne(x => x.User)
+                .WithMany(x => x.Orders)
+                .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(x => x.OrderStatus)
+                .WithMany(x => x.Orders)
+                .HasForeignKey(x => x.OrderStatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Audit properties
+            builder.Property(x => x.CreatedDate)
+                .IsRequired();
+
+            builder.Property(x => x.UpdatedDate)
+                .IsRequired();
+
+            builder.Property(x => x.IsDeleted)
+                .IsRequired()
+                .HasDefaultValue(false);
         }
     }
 }

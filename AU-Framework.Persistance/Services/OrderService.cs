@@ -109,6 +109,12 @@ public sealed class OrderService : IOrderService
                 OrderStatusId = request.OrderStatusId,
                 TotalAmount = request.TotalAmount,
                 OrderDate = DateTime.UtcNow,
+                CustomerName = request.CustomerName,
+                CustomerPhone = request.CustomerPhone,
+                ShippingAddress = request.ShippingAddress,
+                City = request.City,
+                District = request.District,
+                ZipCode = request.ZipCode,
                 OrderDetails = new List<OrderDetail>()
             };
 
