@@ -4,7 +4,7 @@ using MediatR;
 namespace AU_Framework.Application.Features.AuthFeatures.Commands.ChangePassword;
 
 public sealed record ChangePasswordCommand(
-    string UserId,
+    Guid UserId,
     string CurrentPassword,
     string NewPassword
 ) : IRequest<MessageResponse>; 

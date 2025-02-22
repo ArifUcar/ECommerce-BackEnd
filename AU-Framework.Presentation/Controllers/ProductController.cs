@@ -55,7 +55,7 @@ public sealed class ProductController : ControllerBase
     [Authorize(Roles = "Admin,Manager")] // Sadece Admin ve Manager erişebilir
     public async Task<IActionResult> Update(UpdateProductCommand request, CancellationToken cancellationToken)
     {
-        ""var response = await _mediator.Send(request, cancellationToken);
+        var response = await _mediator.Send(request, cancellationToken);
         return Ok(response);
     }
 

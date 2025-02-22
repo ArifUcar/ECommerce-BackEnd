@@ -19,6 +19,7 @@ using AU_Framework.WebAPI.Filters;
 using AU.Framework.Persistance.Services;
 using AU_Framework.Application.Features.OrderFeatures.Commands.CancelOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrderStatus;
+using AU_Framework.Application.Features.AuthFeatures.Commands.ChangePassword;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -180,6 +181,11 @@ builder.Services.AddAuthorization(options =>
 
 // Middleware'leri kaydet
 builder.Services.AddTransient<RequestLoggingMiddleware>();
+
+builder.Services.AddMediatR(cfg => 
+{
+    cfg.RegisterServicesFromAssembly(typeof(ChangePasswordCommand).Assembly);
+});
 
 var app = builder.Build();
 
