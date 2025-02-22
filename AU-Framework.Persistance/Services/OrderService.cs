@@ -197,24 +197,56 @@ public sealed class OrderService : IOrderService
 
     public async Task UpdateAsync(UpdateOrderCommand request, CancellationToken cancellationToken)
     {
-        Order order = await _orderRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (order == null)
-            throw new Exception("Sipariş bulunamadı!"); // ✅ Hata mesajı düzeltildi.
+        try
+        {
+            var order = await _orderRepository.GetFirstWithIncludeAsync(
+                x => x.Id == request.Id && !x.IsDeleted,
+                query => query
+                    .Include(o => o.OrderDetails),
+                cancellationToken);
 
-        // 🛠 Doğru atamalar
-        order.OrderDate = request.OrderDate;
-        order.OrderStatusId = request.OrderStatusId;
-        order.TotalAmount = request.TotalAmount;
+            if (order == null)
+                throw new Exception("Sipariş bulunamadı!");
 
-        // 🛠 Eğer `UserId` de güncellenmek isteniyorsa
-        order.UserId = request.UserId;
+            // Ana sipariş bilgilerini güncelle
+            order.UserId = request.UserId;
+            order.OrderDate = request.OrderDate;
+            order.OrderStatusId = request.OrderStatusId;
+            order.TotalAmount = request.TotalAmount;
+            order.CustomerName = request.CustomerName;
+            order.CustomerPhone = request.CustomerPhone;
+            order.ShippingAddress = request.ShippingAddress;
+            order.City = request.City;
+            order.District = request.District;
+            order.ZipCode = request.ZipCode;
+            order.UpdatedDate = DateTime.UtcNow;
 
-  
+            // Sipariş detaylarını güncelle
+            order.OrderDetails.Clear();
+            foreach (var detail in request.OrderDetails)
+            {
+                order.OrderDetails.Add(new OrderDetail
+                {
+                    Id = detail.Id,
+                    ProductId = detail.ProductId,
+                    ProductName = detail.ProductName,
+                    Quantity = detail.Quantity,
+                    UnitPrice = detail.UnitPrice,
+                    SubTotal = detail.SubTotal,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                });
+            }
 
-        await _orderRepository.UpdateAsync(order, cancellationToken);
+            await _orderRepository.UpdateAsync(order, cancellationToken);
+            await _logger.LogInfo($"Order updated successfully. OrderId: {request.Id}");
+        }
+        catch (Exception ex)
+        {
+            await _logger.LogError(ex, $"Error updating order: {request.Id}");
+            throw;
+        }
     }
-
-
 
     public async Task DeleteAsync(DeleteOrderCommand request, CancellationToken cancellationToken)
     {
@@ -261,8 +293,6 @@ public sealed class OrderService : IOrderService
                 return new List<OrderDto>();
 
             return _mapper.Map<List<OrderDto>>(orders);
-
-
 
         }
         catch (Exception ex)
@@ -337,6 +367,4 @@ public sealed class OrderService : IOrderService
             throw;
         }
     }
-
- 
 } 
