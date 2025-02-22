@@ -19,7 +19,6 @@ public sealed record OrderDto(
     DateTime CreatedDate,
     DateTime? UpdatedDate,
     DateTime? DeleteDate,
-    bool IsDeleted,
     List<OrderDetailResponse> OrderDetails);
 
 public sealed record OrderDetailResponse(
@@ -29,9 +28,8 @@ public sealed record OrderDetailResponse(
     int Quantity,
     decimal UnitPrice,
     decimal SubTotal,
-    // Audit bilgileri
     DateTime CreatedDate,
     DateTime? UpdatedDate,
-    DateTime? DeleteDate,
-    bool IsDeleted
+    DateTime? DeleteDate
+    
 );

@@ -64,26 +64,7 @@ public sealed class MappingProfile : Profile
         CreateMap<UpdateProductCommand, Product>()
             .ForMember(dest => dest.ImagePath, opt => opt.Ignore())
             .ForMember(dest => dest.Base64Image, opt => opt.MapFrom(src => src.Base64Image))
-            .AfterMap((src, dest) => {
-                if (dest.ProductDetail == null)
-                {
-                    dest.ProductDetail = new ProductDetail();
-                }
-                
-                dest.ProductDetail.Color = src.Color;
-                dest.ProductDetail.Size = src.Size;
-                dest.ProductDetail.Material = src.Material;
-                dest.ProductDetail.Brand = src.Brand;
-                dest.ProductDetail.Model = src.Model;
-                dest.ProductDetail.Warranty = src.Warranty;
-                dest.ProductDetail.Specifications = src.Specifications;
-                dest.ProductDetail.AdditionalInformation = src.AdditionalInformation;
-                dest.ProductDetail.Weight = src.Weight;
-                dest.ProductDetail.WeightUnit = src.WeightUnit;
-                dest.ProductDetail.Dimensions = src.Dimensions;
-                dest.ProductDetail.StockCode = src.StockCode;
-                dest.ProductDetail.Barcode = src.Barcode;
-            });
+            .ForMember(dest => dest.ProductDetail, opt => opt.Ignore());
 
         CreateMap<ProductDetailDto, ProductDetail>();
 
@@ -93,37 +74,7 @@ public sealed class MappingProfile : Profile
 
         // Order mappings
         CreateMap<CreateOrderCommand, Order>();
-        CreateMap<Order, OrderDto>()
-            .ConstructUsing((src, ctx) => new OrderDto(
-                src.Id,
-                src.UserId,
-                $"{src.User.FirstName} {src.User.LastName}",
-                src.OrderDate,
-                src.TotalAmount,
-                src.OrderStatus.Name,
-                src.CustomerName,
-                src.CustomerPhone,
-                src.ShippingAddress,
-                src.City,
-                src.District,
-                src.ZipCode,
-                src.CreatedDate,
-                src.UpdatedDate,
-                src.DeleteDate,
-                src.IsDeleted,
-                src.OrderDetails.Select(detail => new OrderDetailResponse(
-                    detail.Id,
-                    detail.ProductId,
-                    detail.ProductName,
-                    detail.Quantity,
-                    detail.UnitPrice,
-                    detail.SubTotal,
-                    detail.CreatedDate,
-                    detail.UpdatedDate,
-                    detail.DeleteDate,
-                    detail.IsDeleted
-                )).ToList()
-            ));
+        
 
         // OrderDetail mappings
         CreateMap<OrderDetail, OrderDetailResponse>()
@@ -136,8 +87,8 @@ public sealed class MappingProfile : Profile
                 src.SubTotal,
                 src.CreatedDate,
                 src.UpdatedDate,
-                src.DeleteDate,
-                src.IsDeleted
+                src.DeleteDate
+            
             ));
 
         CreateMap<UpdateOrderCommand, Order>().ReverseMap();

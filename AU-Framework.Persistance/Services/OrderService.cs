@@ -184,7 +184,6 @@ public sealed class OrderService : IOrderService
                 order.CreatedDate,
                 order.UpdatedDate,
                 order.DeleteDate,
-                order.IsDeleted,
                 order.OrderDetails.Select(detail => new OrderDetailResponse(
                     detail.Id,
                     detail.ProductId,
@@ -194,8 +193,7 @@ public sealed class OrderService : IOrderService
                     detail.SubTotal,
                     detail.CreatedDate,
                     detail.UpdatedDate,
-                    detail.DeleteDate,
-                    detail.IsDeleted
+                    detail.DeleteDate
                 )).ToList()
             )).ToListAsync(cancellationToken);
         }
@@ -208,49 +206,56 @@ public sealed class OrderService : IOrderService
 
     public async Task<OrderDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var order = await _orderRepository.GetFirstWithIncludeAsync(
-            x => x.Id == id,
-            query => query
-                .Include(o => o.User)
-                .Include(o => o.OrderStatus)
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Product),
-            cancellationToken);
+        try
+        {
+            var order = await _orderRepository.GetFirstWithIncludeAsync(
+                x => x.Id == id,
+                query => query
+                    .Include(o => o.User)
+                    .Include(o => o.OrderStatus)
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.Product),
+                cancellationToken);
 
-        if (order is null)
-            throw new Exception("Sipariş bulunamadı!");
+            if (order is null)
+                throw new Exception("Sipariş bulunamadı!");
 
-        return new OrderDto(
-            order.Id,
-            order.UserId,
-            $"{order.User.FirstName} {order.User.LastName}",
-            order.OrderDate,
-            order.TotalAmount,
-            order.OrderStatus.Name,
-            order.CustomerName,
-            order.CustomerPhone,
-            order.ShippingAddress,
-            order.City,
-            order.District,
-            order.ZipCode,
-            order.CreatedDate,
-            order.UpdatedDate,
-            order.DeleteDate,
-            order.IsDeleted,
-            order.OrderDetails.Select(detail => new OrderDetailResponse(
-                detail.Id,
-                detail.ProductId,
-                detail.ProductName,
-                detail.Quantity,
-                detail.UnitPrice,
-                detail.SubTotal,
-                detail.CreatedDate,
-                detail.UpdatedDate,
-                detail.DeleteDate,
-                detail.IsDeleted
-            )).ToList()
-        );
+            return new OrderDto(
+                order.Id,
+                order.UserId,
+                $"{order.User.FirstName} {order.User.LastName}",
+                order.OrderDate,
+                order.TotalAmount,
+                order.OrderStatus.Name,
+                order.CustomerName,
+                order.CustomerPhone,
+                order.ShippingAddress,
+                order.City,
+                order.District,
+                order.ZipCode,
+                order.CreatedDate,
+                order.UpdatedDate,
+                order.DeleteDate,
+                order.OrderDetails.Select(detail => new OrderDetailResponse(
+                    detail.Id,
+                    detail.ProductId,
+                    detail.ProductName,
+                    detail.Quantity,
+                    detail.UnitPrice,
+                    detail.SubTotal,
+                    detail.CreatedDate,
+                    detail.UpdatedDate,
+                    detail.DeleteDate
+                )).ToList()
+            );
+        }
+        catch (Exception ex)
+        {
+            await _logger.LogError(ex, $"Sipariş getirilirken hata oluştu: {id}");
+            throw;
+        }
     }
+
 
     public async Task UpdateAsync(UpdateOrderCommand request, CancellationToken cancellationToken)
     {
@@ -362,7 +367,6 @@ public sealed class OrderService : IOrderService
                 order.CreatedDate,
                 order.UpdatedDate,
                 order.DeleteDate,
-                order.IsDeleted,
                 order.OrderDetails.Select(detail => new OrderDetailResponse(
                     detail.Id,
                     detail.ProductId,
@@ -372,8 +376,7 @@ public sealed class OrderService : IOrderService
                     detail.SubTotal,
                     detail.CreatedDate,
                     detail.UpdatedDate,
-                    detail.DeleteDate,
-                    detail.IsDeleted
+                    detail.DeleteDate
                 )).ToList()
             )).ToListAsync(cancellationToken);
         }

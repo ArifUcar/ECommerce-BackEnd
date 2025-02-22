@@ -74,43 +74,66 @@ public sealed class ProductService : IProductService
 
     public async Task UpdateAsync(UpdateProductCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (product == null)
-            throw new Exception("Ürün bulunamadı!");
-
-        if (product.IsDeleted)
-            throw new Exception("Bu ürün artık aktif değil!");
-
-        // Kategori kontrolü
-        var category = await _categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken);
-        if (category == null)
-            throw new Exception("Kategori bulunamadı!");
-
-        if (category.IsDeleted)
-            throw new Exception("Bu kategori artık aktif değil!");
-
-        // Ürünü güncelle
-        product.ProductName = request.ProductName;
-        product.Description = request.Description;
-        product.Price = request.Price;
-        product.DiscountedPrice = request.DiscountedPrice;
-        product.DiscountRate = request.DiscountRate;
-        product.DiscountStartDate = request.DiscountStartDate;
-        product.DiscountEndDate = request.DiscountEndDate;
-        product.StockQuantity = request.StockQuantity;
-        product.CategoryId = request.CategoryId;
-        product.UpdatedDate = DateTime.Now;
-
-        if (!string.IsNullOrEmpty(request.Base64Image))
+        try
         {
-            if (!string.IsNullOrEmpty(product.ImagePath))
-                _imageService.DeleteImage(product.ImagePath);
+            var product = await _productRepository.GetFirstWithIncludeAsync(
+                x => x.Id == request.Id && !x.IsDeleted,
+                query => query.Include(p => p.ProductDetail),
+                cancellationToken);
 
-            product.Base64Image = request.Base64Image;
-            product.ImagePath = _imageService.SaveBase64Image(request.Base64Image, request.ProductName);
+            if (product == null)
+                throw new Exception("Ürün bulunamadı!");
+            {
+
+
+                // Kategori kontrolü
+                var category = await _categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken);
+                if (category == null)
+                    throw new Exception("Kategori bulunamadı!");
+
+                if (category.IsDeleted)
+                    throw new Exception("Bu kategori artık aktif değil!");
+
+                // Ana ürün bilgilerini güncelle
+                _mapper.Map(request, product);
+                product.UpdatedDate = DateTime.UtcNow;
+
+                // Görsel işlemleri
+                if (!string.IsNullOrEmpty(request.Base64Image))
+                {
+                    try
+                    {
+                        // Eski görseli sil
+                        if (!string.IsNullOrEmpty(product.ImagePath))
+                            _imageService.DeleteImage(product.ImagePath);
+
+                        product.Base64Image = request.Base64Image;
+                        product.ImagePath = _imageService.SaveBase64Image(request.Base64Image, request.ProductName);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Görsel güncellenirken hata oluştu");
+                        throw new Exception("Görsel güncellenirken bir hata oluştu. Lütfen geçerli bir görsel yükleyin.");
+                    }
+                }
+
+                // ProductDetail bilgilerini güncelle
+                if (product.ProductDetail == null)
+                    product.ProductDetail = new ProductDetail();
+
+                _mapper.Map(request.ProductDetail, product.ProductDetail);
+                product.ProductDetail.UpdatedDate = DateTime.UtcNow;
+
+                await _productRepository.UpdateAsync(product, cancellationToken);
+            }
         }
 
-        await _productRepository.UpdateAsync(product, cancellationToken);
+
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error updating product: {request.Id}");
+            throw;
+        }
     }
 
     public async Task DeleteAsync(DeleteProductCommand request, CancellationToken cancellationToken)
