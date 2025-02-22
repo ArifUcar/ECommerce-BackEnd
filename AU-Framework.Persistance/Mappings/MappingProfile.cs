@@ -94,23 +94,48 @@ public sealed class MappingProfile : Profile
         // Order mappings
         CreateMap<CreateOrderCommand, Order>();
         CreateMap<Order, OrderDto>()
-            .ForMember(dest => dest.UserFullName,
-                opt => opt.MapFrom(src => $"{src.User.FirstName} {src.User.LastName}"))
-            .ForMember(dest => dest.OrderStatus,
-                opt => opt.MapFrom(src => src.OrderStatus.Name))
-            .ForMember(dest => dest.OrderDetails,
-                opt => opt.MapFrom(src => src.OrderDetails));
+            .ConstructUsing((src, ctx) => new OrderDto(
+                src.Id,
+                src.UserId,
+                $"{src.User.FirstName} {src.User.LastName}",
+                src.OrderDate,
+                src.TotalAmount,
+                src.OrderStatus.Name,
+                src.CustomerName,
+                src.CustomerPhone,
+                src.ShippingAddress,
+                src.City,
+                src.District,
+                src.ZipCode,
+                src.CreatedDate,
+                src.UpdatedDate,
+            
+                src.OrderDetails.Select(detail => new OrderDetailResponse(
+                    detail.Id,
+                    detail.ProductId,
+                    detail.ProductName,
+                    detail.Quantity,
+                    detail.UnitPrice,
+                    detail.SubTotal,
+                    detail.CreatedDate,
+                    detail.UpdatedDate
+                
+                )).ToList()
+            ));
 
         // OrderDetail mappings
-        CreateMap<OrderDetail, OrderDetailDto>()
-            .ForMember(dest => dest.ProductName,
-                opt => opt.MapFrom(src => src.Product != null ? src.Product.ProductName : string.Empty))
-            .ForMember(dest => dest.ProductId,
-                opt => opt.MapFrom(src => src.ProductId))
-            .ForMember(dest => dest.Quantity,
-                opt => opt.MapFrom(src => src.Quantity))
-            .ForMember(dest => dest.UnitPrice,
-                opt => opt.MapFrom(src => src.UnitPrice));
+        CreateMap<OrderDetail, OrderDetailResponse>()
+            .ConstructUsing(src => new OrderDetailResponse(
+                src.Id,
+                src.ProductId,
+                src.ProductName,
+                src.Quantity,
+                src.UnitPrice,
+                src.SubTotal,
+                src.CreatedDate,
+                src.UpdatedDate
+           
+            ));
 
         CreateMap<UpdateOrderCommand, Order>().ReverseMap();
     }

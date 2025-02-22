@@ -4,7 +4,7 @@ using MediatR;
 
 namespace AU_Framework.Application.Features.OrderFeatures.Queries.GetAllOrders;
 
-public sealed class GetAllOrdersQueryHandler : IRequestHandler<GetAllOrdersQuery, List<GetAllOrdersQueryResponse>>
+public sealed class GetAllOrdersQueryHandler : IRequestHandler<GetAllOrdersQuery, List<OrderDto>>
 {
     private readonly IOrderService _orderService;
 
@@ -13,7 +13,7 @@ public sealed class GetAllOrdersQueryHandler : IRequestHandler<GetAllOrdersQuery
         _orderService = orderService;
     }
 
-    public async Task<List<GetAllOrdersQueryResponse>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
+    public async Task<List<OrderDto>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
     {
         return await _orderService.GetAllAsync(cancellationToken);
     }

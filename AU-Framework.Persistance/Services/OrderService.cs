@@ -154,7 +154,7 @@ public sealed class OrderService : IOrderService
         }
     }
 
-    public async Task<List<GetAllOrdersQueryResponse>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<List<OrderDto>> GetAllAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -168,34 +168,8 @@ public sealed class OrderService : IOrderService
                     .OrderByDescending(o => o.OrderDate),
                 cancellationToken);
 
-            return await orders.Select(order => new GetAllOrdersQueryResponse(
-                order.Id,
-                order.UserId,
-                $"{order.User.FirstName} {order.User.LastName}",
-                order.OrderDate,
-                order.TotalAmount,
-                order.OrderStatus.Name,
-                order.CustomerName,
-                order.CustomerPhone,
-                order.ShippingAddress,
-                order.City,
-                order.District,
-                order.ZipCode,
-                order.CreatedDate,
-                order.UpdatedDate,
-                order.IsDeleted,
-                order.OrderDetails.Select(detail => new OrderDetailResponse(
-                    detail.Id,
-                    detail.ProductId,
-                    detail.ProductName,
-                    detail.Quantity,
-                    detail.UnitPrice,
-                    detail.SubTotal,
-                    detail.CreatedDate,
-                    detail.UpdatedDate,
-                    detail.IsDeleted
-                )).ToList()
-            )).ToListAsync(cancellationToken);
+            return _mapper.Map<List<OrderDto>>(orders);
+
         }
         catch (Exception ex)
         {
@@ -286,23 +260,10 @@ public sealed class OrderService : IOrderService
             if (orders == null || !orders.Any())
                 return new List<OrderDto>();
 
-            var orderDtos = orders.Select(order => new OrderDto(
-                order.Id,
-                order.UserId,
-                $"{order.User.FirstName} {order.User.LastName}",
-                order.OrderDate,
-                order.TotalAmount,
-                order.OrderStatus.Name,
-                order.OrderDetails.Select(detail => new OrderDetailDto(
-                    detail.Id,
-                    detail.ProductId,
-                    detail.Product != null ? detail.Product.ProductName : string.Empty,
-                    detail.Quantity,
-                    detail.UnitPrice
-                )).ToList()
-            )).ToList();
+            return _mapper.Map<List<OrderDto>>(orders);
 
-            return orderDtos;
+
+
         }
         catch (Exception ex)
         {

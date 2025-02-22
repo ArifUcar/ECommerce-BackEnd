@@ -11,7 +11,7 @@ namespace AU_Framework.Application.Services;
 public interface IOrderService
 {
     Task CreateAsync(CreateOrderCommand request, CancellationToken cancellationToken);
-    Task<List<GetAllOrdersQueryResponse>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<OrderDto>> GetAllAsync(CancellationToken cancellationToken);
     Task<List<OrderDto>> GetUserOrdersAsync(CancellationToken cancellationToken);
     Task<OrderDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     Task UpdateAsync(UpdateOrderCommand request, CancellationToken cancellationToken);
