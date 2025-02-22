@@ -15,16 +15,6 @@ public sealed class GetAllOrdersQueryHandler : IRequestHandler<GetAllOrdersQuery
 
     public async Task<List<GetAllOrdersQueryResponse>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
     {
-        var orders = await _orderService.GetAllAsync(cancellationToken);
-
-        return orders.Select(order => new GetAllOrdersQueryResponse(
-            Id: order.Id,
-            UserId: order.UserId,
-            UserFullName: order.UserFullName,
-            OrderDate: order.OrderDate,
-            TotalAmount: order.TotalAmount,
-            OrderStatus: order.OrderStatus,
-            OrderDetails: order.OrderDetails  // Doğrudan DTO'dan gelen OrderDetails'i kullanıyoruz
-        )).ToList();
+        return await _orderService.GetAllAsync(cancellationToken);
     }
 } 

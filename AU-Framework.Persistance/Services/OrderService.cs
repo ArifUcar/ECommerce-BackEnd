@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using AU_Framework.Application.Features.OrderFeatures.Commands.DeleteOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrderStatus;
+using AU_Framework.Application.Features.OrderFeatures.Queries;
+using AU_Framework.Application.Features.OrderFeatures.Queries.GetAllOrders;
+using System.Linq;
 
 namespace AU_Framework.Persistance.Services;
 
@@ -151,7 +154,7 @@ public sealed class OrderService : IOrderService
         }
     }
 
-    public async Task<List<OrderDto>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<List<GetAllOrdersQueryResponse>> GetAllAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -160,31 +163,39 @@ public sealed class OrderService : IOrderService
                     .Include(o => o.User)
                     .Include(o => o.OrderStatus)
                     .Include(o => o.OrderDetails)
-                    .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                    .ThenInclude(od => od.Product)
                     .Where(o => !o.IsDeleted)
-                    .AsNoTracking(),
+                    .OrderByDescending(o => o.OrderDate),
                 cancellationToken);
 
-            if (orders == null || !orders.Any())
-                return new List<OrderDto>();
-
-            var orderDtos = orders.Select(order => new OrderDto(
+            return await orders.Select(order => new GetAllOrdersQueryResponse(
                 order.Id,
                 order.UserId,
-                order.User != null ? $"{order.User.FirstName} {order.User.LastName}" : string.Empty,
+                $"{order.User.FirstName} {order.User.LastName}",
                 order.OrderDate,
                 order.TotalAmount,
-                order.OrderStatus != null ? order.OrderStatus.Name : string.Empty,
-                order.OrderDetails.Select(detail => new OrderDetailDto(
+                order.OrderStatus.Name,
+                order.CustomerName,
+                order.CustomerPhone,
+                order.ShippingAddress,
+                order.City,
+                order.District,
+                order.ZipCode,
+                order.CreatedDate,
+                order.UpdatedDate,
+                order.IsDeleted,
+                order.OrderDetails.Select(detail => new OrderDetailResponse(
                     detail.Id,
                     detail.ProductId,
-                    detail.Product != null ? detail.Product.ProductName : string.Empty,
+                    detail.ProductName,
                     detail.Quantity,
-                    detail.UnitPrice
+                    detail.UnitPrice,
+                    detail.SubTotal,
+                    detail.CreatedDate,
+                    detail.UpdatedDate,
+                    detail.IsDeleted
                 )).ToList()
-            )).ToList();
-
-            return orderDtos;
+            )).ToListAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -365,4 +376,6 @@ public sealed class OrderService : IOrderService
             throw;
         }
     }
+
+ 
 } 

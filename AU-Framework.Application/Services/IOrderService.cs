@@ -4,13 +4,14 @@ using AU_Framework.Domain.Dtos;
 using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.DeleteOrder;
 using AU_Framework.Application.Features.OrderFeatures.Commands.UpdateOrderStatus;
+using AU_Framework.Application.Features.OrderFeatures.Queries.GetAllOrders;
 
 namespace AU_Framework.Application.Services;
 
 public interface IOrderService
 {
     Task CreateAsync(CreateOrderCommand request, CancellationToken cancellationToken);
-    Task<List<OrderDto>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<GetAllOrdersQueryResponse>> GetAllAsync(CancellationToken cancellationToken);
     Task<List<OrderDto>> GetUserOrdersAsync(CancellationToken cancellationToken);
     Task<OrderDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     Task UpdateAsync(UpdateOrderCommand request, CancellationToken cancellationToken);
