@@ -168,8 +168,36 @@ public sealed class OrderService : IOrderService
                     .OrderByDescending(o => o.OrderDate),
                 cancellationToken);
 
-            return _mapper.Map<List<OrderDto>>(orders);
-
+            return await orders.Select(order => new OrderDto(
+                order.Id,
+                order.UserId,
+                $"{order.User.FirstName} {order.User.LastName}",
+                order.OrderDate,
+                order.TotalAmount,
+                order.OrderStatus.Name,
+                order.CustomerName,
+                order.CustomerPhone,
+                order.ShippingAddress,
+                order.City,
+                order.District,
+                order.ZipCode,
+                order.CreatedDate,
+                order.UpdatedDate,
+                order.DeleteDate,
+                order.IsDeleted,
+                order.OrderDetails.Select(detail => new OrderDetailResponse(
+                    detail.Id,
+                    detail.ProductId,
+                    detail.ProductName,
+                    detail.Quantity,
+                    detail.UnitPrice,
+                    detail.SubTotal,
+                    detail.CreatedDate,
+                    detail.UpdatedDate,
+                    detail.DeleteDate,
+                    detail.IsDeleted
+                )).ToList()
+            )).ToListAsync(cancellationToken);
         }
         catch (Exception ex)
         {
@@ -192,7 +220,36 @@ public sealed class OrderService : IOrderService
         if (order is null)
             throw new Exception("Sipariş bulunamadı!");
 
-        return _mapper.Map<OrderDto>(order);
+        return new OrderDto(
+            order.Id,
+            order.UserId,
+            $"{order.User.FirstName} {order.User.LastName}",
+            order.OrderDate,
+            order.TotalAmount,
+            order.OrderStatus.Name,
+            order.CustomerName,
+            order.CustomerPhone,
+            order.ShippingAddress,
+            order.City,
+            order.District,
+            order.ZipCode,
+            order.CreatedDate,
+            order.UpdatedDate,
+            order.DeleteDate,
+            order.IsDeleted,
+            order.OrderDetails.Select(detail => new OrderDetailResponse(
+                detail.Id,
+                detail.ProductId,
+                detail.ProductName,
+                detail.Quantity,
+                detail.UnitPrice,
+                detail.SubTotal,
+                detail.CreatedDate,
+                detail.UpdatedDate,
+                detail.DeleteDate,
+                detail.IsDeleted
+            )).ToList()
+        );
     }
 
     public async Task UpdateAsync(UpdateOrderCommand request, CancellationToken cancellationToken)
@@ -289,11 +346,36 @@ public sealed class OrderService : IOrderService
                     .AsNoTracking(),
                 cancellationToken);
 
-            if (orders == null || !orders.Any())
-                return new List<OrderDto>();
-
-            return _mapper.Map<List<OrderDto>>(orders);
-
+            return await orders.Select(order => new OrderDto(
+                order.Id,
+                order.UserId,
+                $"{order.User.FirstName} {order.User.LastName}",
+                order.OrderDate,
+                order.TotalAmount,
+                order.OrderStatus.Name,
+                order.CustomerName,
+                order.CustomerPhone,
+                order.ShippingAddress,
+                order.City,
+                order.District,
+                order.ZipCode,
+                order.CreatedDate,
+                order.UpdatedDate,
+                order.DeleteDate,
+                order.IsDeleted,
+                order.OrderDetails.Select(detail => new OrderDetailResponse(
+                    detail.Id,
+                    detail.ProductId,
+                    detail.ProductName,
+                    detail.Quantity,
+                    detail.UnitPrice,
+                    detail.SubTotal,
+                    detail.CreatedDate,
+                    detail.UpdatedDate,
+                    detail.DeleteDate,
+                    detail.IsDeleted
+                )).ToList()
+            )).ToListAsync(cancellationToken);
         }
         catch (Exception ex)
         {

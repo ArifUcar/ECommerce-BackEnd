@@ -1,13 +1,13 @@
 namespace AU_Framework.Domain.Dtos;
 
 public sealed record OrderDto(
-     Guid Id,
+    Guid Id,
     Guid UserId,
     string UserFullName,
     DateTime OrderDate,
     decimal TotalAmount,
     string OrderStatus,
-    // Sipariþ veren kiþi bilgileri
+    // SipariÅŸ veren kiÅŸi bilgileri
     string CustomerName,
     string CustomerPhone,
     // Adres bilgileri
@@ -18,7 +18,10 @@ public sealed record OrderDto(
     // Audit bilgileri
     DateTime CreatedDate,
     DateTime? UpdatedDate,
+    DateTime? DeleteDate,
+    bool IsDeleted,
     List<OrderDetailResponse> OrderDetails);
+
 public sealed record OrderDetailResponse(
     Guid Id,
     Guid ProductId,
@@ -28,6 +31,7 @@ public sealed record OrderDetailResponse(
     decimal SubTotal,
     // Audit bilgileri
     DateTime CreatedDate,
-    DateTime? UpdatedDate
- 
+    DateTime? UpdatedDate,
+    DateTime? DeleteDate,
+    bool IsDeleted
 );

@@ -109,7 +109,8 @@ public sealed class MappingProfile : Profile
                 src.ZipCode,
                 src.CreatedDate,
                 src.UpdatedDate,
-            
+                src.DeleteDate,
+                src.IsDeleted,
                 src.OrderDetails.Select(detail => new OrderDetailResponse(
                     detail.Id,
                     detail.ProductId,
@@ -118,8 +119,9 @@ public sealed class MappingProfile : Profile
                     detail.UnitPrice,
                     detail.SubTotal,
                     detail.CreatedDate,
-                    detail.UpdatedDate
-                
+                    detail.UpdatedDate,
+                    detail.DeleteDate,
+                    detail.IsDeleted
                 )).ToList()
             ));
 
@@ -133,8 +135,9 @@ public sealed class MappingProfile : Profile
                 src.UnitPrice,
                 src.SubTotal,
                 src.CreatedDate,
-                src.UpdatedDate
-           
+                src.UpdatedDate,
+                src.DeleteDate,
+                src.IsDeleted
             ));
 
         CreateMap<UpdateOrderCommand, Order>().ReverseMap();
