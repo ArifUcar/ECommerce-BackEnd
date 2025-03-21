@@ -1,4 +1,7 @@
-E-Comemrce BackEnd Dökümanatasyonu
+E-Commerce FrontEnd Linki: https://github.com/ArifUcar/E-Commerce-Frontend/blob/master/README.md
+
+
+E-Commerce BackEnd Dökümanatasyonu
 Projede çalışabilmesi için src/AU-Framework.WebAPI/appsettings.json dosyasındaki ConnectionStrings kısmını aşağıdaki gibi düzenlemeniz gerekmektedir:
 json
 KopyalaDüzenle
